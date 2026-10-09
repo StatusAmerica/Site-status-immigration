@@ -42,13 +42,13 @@ que já existem na Cloudflare.
 8. Adicionar `statusimmigrationlaw.com.br` em **Domains** quando a zona estiver
    nessa conta. O domínio público não mudou com a padronização de nomes.
 
-## Etapa pendente no repositório
+## Configuração do banco e publicação
 
-Substituir `d1_databases[0].database_id` em `wrangler.jsonc` pelo ID informado
-pelo cliente. O ID atual é legado e causou o erro 10181 no deploy de 09/10/2026.
-Não publicar essa configuração enquanto esse ID não for atualizado.
+O binding `DB` em `wrangler.jsonc` aponta para o banco `site-status-immigration`
+com Database ID `42af0ae5-4b29-4244-9713-97b9feef758e`, informado pelo cliente.
+Esse ID substitui o identificador legado que causava o erro 10181.
 
-Depois de receber o ID e preparar as tabelas:
+Depois de confirmar que as tabelas foram criadas na conta correta:
 
 ```sh
 npm ci

@@ -19,8 +19,7 @@
     {
       "binding": "DB",
       "database_name": "site-status-immigration",
-      // PENDENTE: substituir pelo ID do D1 site-status-immigration criado na conta do cliente antes do push/deploy.
-      "database_id": "8ea15fdf-8b76-4b1c-a93e-bb55adff3759",
+      "database_id": "42af0ae5-4b29-4244-9713-97b9feef758e",
       "migrations_dir": "migrations"
     }
   ],
