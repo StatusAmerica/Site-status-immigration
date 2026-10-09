@@ -158,7 +158,7 @@ Home (/) completa e responsiva, com todas as 14 dobras, design system aplicado, 
 
 ## Hospedagem
 
-O site roda na Cloudflare (Workers + D1 + R2 + Access). Veja `AGENTS.md` e
+O site roda na Cloudflare (Workers + D1 + R2; login próprio do painel). Veja `AGENTS.md` e
 `docs/MIGRACAO-CLOUDFLARE.md`.
 
 ```sh

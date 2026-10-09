@@ -1,34 +1,72 @@
-# Migração Lovable → Cloudflare: checklist
+# Deploy na Cloudflare — Status Immigration
 
-Feito no código (branch `migrate-cloudflare`):
+Repositório: https://github.com/StatusAmerica/Site-status-immigration
+Branch de produção: `main`.
 
-- [x] Build com `@cloudflare/vite-plugin` (sem `@lovable.dev/*`, sem `nitro`)
-- [x] Supabase/Lovable Cloud substituído por D1 (`/api/kv` + `src/lib/kv.server.ts`)
-- [x] Upload de mídia do admin → R2 (`/api/admin/upload`, servido em `/media/*`)
-- [x] Login do admin → e-mail + senha próprios (D1)
-- [x] Arquivos da Lovable (`/__l5e/...`: logo, imagem OG, vídeo do hero) copiados para `public/`
-- [x] URLs do site trocadas para `statusimmigrationlaw.com.br`
-- [x] Worker publicado: https://career-us-path.v4mdf-ferramentas.workers.dev
+## Nomes dos recursos
 
-Falta (no painel / terminal):
+| Recurso | Nome |
+|---|---|
+| Projeto npm | `site-status-immigration` |
+| Worker | `site-status-immigration` |
+| Banco D1 (binding `DB`) | `site-status-immigration` |
+| Bucket R2 (binding `MEDIA`) | `site-status-immigration-media` |
 
-1. **Conta da Cloudflare**: domínio e Worker precisam estar na MESMA conta
-   (CNAME entre contas dá erro 1014). Decidir antes dos passos abaixo, porque
-   D1, R2 e Workers Builds são por conta.
-2. **Ativar o R2** no painel (R2 → Enable) e criar o bucket:
-   `npx wrangler r2 bucket create career-us-path-media` (feito na conta de teste).
-3. **Workers Builds**: Worker `career-us-path` → Settings → Builds → Connect →
-   repositório `V4-MDF/career-us-path`.
-   - Build command: `npm run build`
-   - Deploy command: `npx wrangler deploy`
-   - Excluir/desconectar o projeto **Pages** `career-us-path` (senão são dois deploys por push).
-4. **Primeiro admin** (em cada conta/banco novo): `node scripts/criar-admin.mjs`.
-5. **Dados do Lovable Cloud**:
-   `node scripts/migrar-dados-lovable.mjs` (só baixa e confere) e depois
-   `node scripts/migrar-dados-lovable.mjs --aplicar` (importa no D1/R2).
-   Os dados reais estão no Supabase ORIGINAL (rtbknvkquybujxsvvrfy), não no
-   Lovable Cloud do `.env` antigo. Login: `LOVABLE_ACCESS_TOKEN=$(pbpaste)` com o
-   token de uma sessão logada no admin antigo, ou e-mail/senha de admin.
-6. **Domínio**: Worker → Domains → Add Domain → `statusimmigrationlaw.com.br`
-   (e `www`, se quiser) e descomentar `routes` em `wrangler.jsonc`.
-7. Testar o site e o `/admin` no domínio novo e depois desconectar o GitHub da Lovable.
+Os nomes em minúsculas são intencionais. O nome do repositório no GitHub
+continua `Site-status-immigration`. Renomear a configuração não renomeia recursos
+que já existem na Cloudflare.
+
+## Etapas do cliente na Cloudflare
+
+1. Entrar na conta que contém o Worker `site-status-immigration`.
+2. Em **Storage & Databases → D1**, criar o banco `site-status-immigration`.
+   Copiar o **Database ID** e enviá-lo ao responsável pelo repositório.
+3. Criar as tabelas no Console do banco executando, nesta ordem, o SQL de
+   `migrations/0001_kv_records.sql` e `migrations/0002_admin_auth.sql`.
+   Como alternativa, depois de atualizar o ID no repositório, executar
+   `npm run db:migrate:remote` com o Wrangler autenticado nessa conta.
+   As migrations usam `IF NOT EXISTS`; não é necessário marcar manualmente
+   migrations como aplicadas quando o SQL for executado pelo Console.
+4. Em **R2**, criar o bucket `site-status-immigration-media`, se ainda não existir.
+   O bucket com o nome anterior não é renomeado nem copiado automaticamente.
+   Como não há conteúdo relevante a migrar, não é necessário importar dados antigos.
+5. No Worker, conferir **Settings → Builds**:
+   - Repositório: `StatusAmerica/Site-status-immigration`.
+   - Branch: `main`.
+   - Build command: `npm run build`.
+   - Deploy command: `npx wrangler deploy`.
+6. Depois do push, acompanhar o build/deploy e testar o endereço do Worker.
+7. Após preparar o banco, criar o primeiro administrador com
+   `node scripts/criar-admin.mjs`, autenticado na mesma conta Cloudflare.
+   As tabelas vazias não criam um usuário automaticamente.
+8. Adicionar `statusimmigrationlaw.com.br` em **Domains** quando a zona estiver
+   nessa conta. O domínio público não mudou com a padronização de nomes.
+
+## Etapa pendente no repositório
+
+Substituir `d1_databases[0].database_id` em `wrangler.jsonc` pelo ID informado
+pelo cliente. O ID atual é legado e causou o erro 10181 no deploy de 09/10/2026.
+Não publicar essa configuração enquanto esse ID não for atualizado.
+
+Depois de receber o ID e preparar as tabelas:
+
+```sh
+npm ci
+npm run build
+```
+
+Fazer commit e push para `main` após a validação. O push inicia o deploy automático.
+Para futuras mudanças de schema, aplicar `npm run db:migrate:remote` antes de
+publicar código que dependa das novas tabelas/colunas.
+
+## Desenvolvimento local
+
+```sh
+npm ci
+npm run db:migrate:local
+npm run dev
+```
+
+D1 e R2 são simulados localmente. Não é necessário criar recursos remotos para
+validar o build. O script `scripts/migrar-dados-lovable.mjs` fica disponível apenas
+para uma eventual importação do sistema antigo; não faz parte deste deploy vazio.

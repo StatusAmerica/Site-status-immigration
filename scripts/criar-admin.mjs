@@ -14,7 +14,7 @@ import { webcrypto as crypto } from "node:crypto";
 
 import { ask, askHidden } from "./lib/prompt.mjs";
 
-const D1_NAME = "career-us-path";
+const D1_NAME = "site-status-immigration";
 const PBKDF2_ITERATIONS = 100_000;
 const MIN_PASSWORD_LENGTH = 10;
 const target = process.argv.includes("--local") ? "--local" : "--remote";

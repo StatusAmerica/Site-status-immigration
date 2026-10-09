@@ -1,13 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "career-us-path",
+  "name": "site-status-immigration",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   // Entry próprio: envolve o server-entry do TanStack Start com a página de erro de SSR.
   "main": "src/server.ts",
   "observability": { "enabled": true },
 
-  // URL de teste (career-us-path.<conta>.workers.dev) e previews por branch.
+  // URL de teste (site-status-immigration.<conta>.workers.dev) e previews por branch.
   "workers_dev": true,
   "preview_urls": true,
 
@@ -18,10 +18,11 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "career-us-path",
+      "database_name": "site-status-immigration",
+      // PENDENTE: substituir pelo ID do D1 site-status-immigration criado na conta do cliente antes do push/deploy.
       "database_id": "8ea15fdf-8b76-4b1c-a93e-bb55adff3759",
       "migrations_dir": "migrations"
     }
   ],
-  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "career-us-path-media" }]
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "site-status-immigration-media" }]
 }

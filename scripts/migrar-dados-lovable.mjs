@@ -40,8 +40,8 @@ import { ask, askHidden } from "./lib/prompt.mjs";
 const SUPABASE_URL = process.env.LOVABLE_SUPABASE_URL ?? "https://rtbknvkquybujxsvvrfy.supabase.co";
 const SUPABASE_KEY = process.env.LOVABLE_SUPABASE_KEY ?? "sb_publishable_vx0Wr8cZTm1U95TzEf2L4g_u0pqcjzj";
 
-const D1_NAME = "career-us-path";
-const R2_BUCKET = "career-us-path-media";
+const D1_NAME = "site-status-immigration";
+const R2_BUCKET = "site-status-immigration-media";
 const OUT = "migration-data";
 const APPLY = process.argv.includes("--aplicar");
 const NO_LOGIN = process.argv.includes("--sem-login");

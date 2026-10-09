@@ -1,5 +1,5 @@
 {
-  "name": "career-us-path",
+  "name": "site-status-immigration",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "db:migrate:local": "wrangler d1 migrations apply career-us-path --local",
-    "db:migrate:remote": "wrangler d1 migrations apply career-us-path --remote",
+    "db:migrate:local": "wrangler d1 migrations apply site-status-immigration --local",
+    "db:migrate:remote": "wrangler d1 migrations apply site-status-immigration --remote",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

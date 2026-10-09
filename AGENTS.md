@@ -7,9 +7,9 @@ O projeto **saiu da Lovable** e roda 100% na Cloudflare:
 
 | Peça | Onde |
 |---|---|
-| App (TanStack Start, SSR) | Cloudflare Workers, Worker `career-us-path` |
-| Banco | D1 `career-us-path`, tabela única `kv_records` (ver `migrations/`) |
-| Mídia enviada pelo admin | R2 `career-us-path-media`, servida em `/media/*` |
+| App (TanStack Start, SSR) | Cloudflare Workers, Worker `site-status-immigration` |
+| Banco | D1 `site-status-immigration`, tabela única `kv_records` (ver `migrations/`) |
+| Mídia enviada pelo admin | R2 `site-status-immigration-media`, servida em `/media/*` |
 | Login do `/admin` | E-mail + senha próprios (tabelas `admin_users` / `admin_sessions` no D1) |
 | Deploy | Workers Builds conectado ao GitHub: cada push faz build + deploy automático |
 
