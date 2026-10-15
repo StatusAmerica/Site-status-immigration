@@ -11,6 +11,37 @@ async function hash(text: string) {
     (b) => b.toString(16).padStart(2, "0"),
   ).join("");
 }
+let tablesEnsured = false;
+async function ensureReceiptTables() {
+  if (tablesEnsured) return;
+  try {
+    await env.DB.batch([
+      env.DB.prepare(
+        `CREATE TABLE IF NOT EXISTS lead_receipts (
+          receipt_id TEXT PRIMARY KEY,
+          table_name TEXT NOT NULL,
+          owner_hash TEXT NOT NULL,
+          payload_hash TEXT NOT NULL,
+          created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+        )`,
+      ),
+      env.DB.prepare(
+        `CREATE TABLE IF NOT EXISTS lead_rate_limits (
+          bucket TEXT PRIMARY KEY,
+          attempts INTEGER NOT NULL DEFAULT 1,
+          expires_at INTEGER NOT NULL
+        )`,
+      ),
+      env.DB.prepare(
+        `CREATE INDEX IF NOT EXISTS idx_lead_rate_expiry ON lead_rate_limits(expires_at)`,
+      ),
+    ]);
+    tablesEnsured = true;
+  } catch (err) {
+    console.error("[leadSubmission] Failed to ensure receipt tables", err);
+  }
+}
+
 export async function receiveLead(input: unknown, caller: KvCaller): Promise<KvResult> {
   const parsed = submissionSchema.safeParse(input);
   if (!parsed.success) return { status: 400, error: "envio inválido" };
@@ -25,17 +56,25 @@ export async function receiveLead(input: unknown, caller: KvCaller): Promise<KvR
   } catch {
     return { status: 422, error: "Revise os campos do formulário." };
   }
+
+  await ensureReceiptTables();
+
   const now = Date.now();
   const windowId = Math.floor(now / 600000);
   const bucket = await hash(caller.ip + ":" + windowId);
-  const rate = await env.DB.prepare(
-    `INSERT INTO lead_rate_limits (bucket, attempts, expires_at) VALUES (?1, 1, ?2)
-    ON CONFLICT(bucket) DO UPDATE SET attempts = attempts + 1 RETURNING attempts`,
-  )
-    .bind(bucket, (windowId + 1) * 600000)
-    .first<{ attempts: number }>();
-  await env.DB.prepare("DELETE FROM lead_rate_limits WHERE expires_at < ?1").bind(now).run();
-  if (!rate || rate.attempts > 20)
+  let rate: { attempts: number } | null = null;
+  try {
+    rate = await env.DB.prepare(
+      `INSERT INTO lead_rate_limits (bucket, attempts, expires_at) VALUES (?1, 1, ?2)
+      ON CONFLICT(bucket) DO UPDATE SET attempts = attempts + 1 RETURNING attempts`,
+    )
+      .bind(bucket, (windowId + 1) * 600000)
+      .first<{ attempts: number }>();
+    await env.DB.prepare("DELETE FROM lead_rate_limits WHERE expires_at < ?1").bind(now).run();
+  } catch (err) {
+    console.warn("[leadSubmission] rate limit check failed", err);
+  }
+  if (rate && rate.attempts > 20)
     return { status: 429, error: "Muitos envios. Aguarde alguns minutos e tente novamente." };
   const ownerHash = await hash(caller.token);
   const payloadHash = await hash(JSON.stringify({ form: req.form, value }));

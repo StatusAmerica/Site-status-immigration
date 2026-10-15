@@ -57,8 +57,8 @@ export const Route = createFileRoute("/api/kv")({
             ip: request.headers.get("CF-Connecting-IP") || "local",
           });
           return json({ data: result.data ?? null, error: result.error }, result.status);
-        } catch {
-          console.error("[api/kv] storage_operation_failed");
+        } catch (err) {
+          console.error("[api/kv] storage_operation_failed", err);
           return json({ error: "Não foi possível confirmar o recebimento. Tente novamente." }, 500);
         }
       },
