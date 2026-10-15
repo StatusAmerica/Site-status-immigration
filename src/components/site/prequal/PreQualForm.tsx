@@ -23,7 +23,7 @@ import {
   emptyAnswers, loadDraft, saveDraft,
   type PreQualAnswers,
 } from "@/lib/prequal";
-import { trackFormStart, trackFormSubmit } from "@/lib/tracking";
+import { trackFormStart } from "@/lib/tracking";
 
 interface Props {
   onSubmit: (a: PreQualAnswers) => void;
@@ -112,15 +112,15 @@ export function PreQualForm({ onSubmit, submitting }: Props) {
   // Auto-save a cada mudança + track "form_start" na primeira interação
   useEffect(() => {
     saveDraft(a);
-    const started = a.fullName.trim() || a.email.trim() || a.whatsapp.trim() || Object.values(a).some((v) => v === true);
-    if (started && !formStartFiredRef.current) {
+  }, [a]);
+
+  const upd = <K extends keyof PreQualAnswers>(k: K, v: PreQualAnswers[K]) => {
+    if (!formStartFiredRef.current) {
       formStartFiredRef.current = true;
       trackFormStart({ form_name: "pre-qualificacao" });
     }
-  }, [a]);
-
-  const upd = <K extends keyof PreQualAnswers>(k: K, v: PreQualAnswers[K]) =>
     setA((prev) => ({ ...prev, [k]: v }));
+  };
 
   // Validação mínima, contato + consentimento
   const canSubmit = useMemo(() => {
@@ -134,7 +134,7 @@ export function PreQualForm({ onSubmit, submitting }: Props) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    trackFormSubmit({ form_name: "pre-qualificacao" });
+
     if (!canSubmit) return;
     onSubmit(a);
   }

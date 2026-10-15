@@ -13,13 +13,13 @@
  * SEO: noindex (página de conversão, não institucional).
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import { PreQualForm } from "@/components/site/prequal/PreQualForm";
 import { PreQualResult } from "@/components/site/prequal/PreQualResult";
 import { qualifyVisas } from "@/lib/visaQualifier";
-import { saveResponse, type PreQualAnswers, type PreQualResponse } from "@/lib/prequal";
+import { saveResponse, generateToken, type PreQualAnswers, type PreQualResponse } from "@/lib/prequal";
 import { getOrigin } from "@/lib/origin";
 import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer";
 
@@ -35,19 +35,28 @@ export const Route = createFileRoute("/pre-qualificacao")({
 });
 
 function PreQualPage() {
+  const submissionId = useRef(generateToken());
+  const sending = useRef(false);
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [record, setRecord] = useState<PreQualResponse | null>(null);
 
   async function handleSubmit(answers: PreQualAnswers) {
+    if (sending.current) return;
+    sending.current = true;
+    setError("");
     setSubmitting(true);
     try {
       const result = qualifyVisas(answers);
       const origin = getOrigin("/pre-qualificacao");
-      const saved = await saveResponse(answers, result, origin);
+      const saved = await saveResponse(answers, result, origin, submissionId.current);
       setRecord(saved);
       // scroll suave ao topo para o usuário ver o veredicto
       window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setError("Não conseguimos confirmar o recebimento. Tente novamente.");
     } finally {
+      sending.current = false;
       setSubmitting(false);
     }
   }
@@ -82,6 +91,7 @@ function PreQualPage() {
                 </p>
               </header>
 
+              {error && <p role="alert" className="text-red-700">{error}</p>}
               <PreQualForm onSubmit={handleSubmit} submitting={submitting} />
             </>
           )}

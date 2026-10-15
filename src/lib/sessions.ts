@@ -1,3 +1,4 @@
+import { hasAnalyticsConsent } from "./consent";
 /**
  * sessions.ts, rastreio de sessões do site (client-side).
  *
@@ -37,7 +38,7 @@ export interface SessionRecord {
 const isBrowser = () => typeof window !== "undefined";
 
 function currentSessionId(): string | null {
-  if (!isBrowser()) return null;
+  if (!isBrowser() || !hasAnalyticsConsent()) return null;
   try { return window.sessionStorage.getItem(SS_SESSION_ID); } catch { return null; }
 }
 
@@ -46,7 +47,7 @@ function currentSessionId(): string | null {
  * pageview no __root.tsx, só cria o registro na primeira vez.
  */
 export async function ensureSession(currentPath?: string): Promise<void> {
-  if (!isBrowser()) return;
+  if (!isBrowser() || !hasAnalyticsConsent()) return;
   try {
     const existingId = window.sessionStorage.getItem(SS_SESSION_ID);
     if (existingId) {
@@ -72,6 +73,7 @@ export async function ensureSession(currentPath?: string): Promise<void> {
 }
 
 async function patchSession(patch: Partial<SessionRecord>): Promise<void> {
+  if (!hasAnalyticsConsent()) return;
   const id = currentSessionId();
   if (!id) return;
   try {

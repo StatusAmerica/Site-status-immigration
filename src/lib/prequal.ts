@@ -17,7 +17,7 @@
  *    porque não os coletamos aqui.
  */
 
-import { get, list, set as dsSet } from "@/lib/dataStore";
+import { get, list, set as dsSet, submitLead } from "@/lib/dataStore";
 import type { LeadOrigin } from "@/lib/origin";
 import type { QualificationResult, VisaCode } from "@/lib/visaQualifier";
 
@@ -110,12 +110,7 @@ export interface PreQualResponse {
  * migração para Supabase, substituir por nanoid no servidor.
  * ============================================================ */
 export function generateToken(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem caracteres ambíguos
-  let out = "";
-  for (let i = 0; i < 10; i++) {
-    out += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
-  return out;
+  return crypto.randomUUID();
 }
 
 /* ============================================================
@@ -146,14 +141,14 @@ export async function saveResponse(
   answers: PreQualAnswers,
   result: QualificationResult,
   origin: LeadOrigin | null,
+  id = generateToken(),
 ): Promise<PreQualResponse> {
-  const id = generateToken();
   const record: PreQualResponse = {
     id, answers, result, origin: origin ?? null,
     createdAt: new Date().toISOString(),
     whatsappOpened: false,
   };
-  await dsSet("prequal_responses", id, record);
+  await submitLead("prequal_responses", id, record, "pre-qualificacao");
   clearDraft();
   return record;
 }

@@ -11,11 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CheckCircle2, ChevronRight, Loader2 } from "lucide-react";
-import { newId, set } from "@/lib/dataStore";
-import { captureUtms, type LeadInput } from "@/lib/leadScoring";
+import { newId, submitLead } from "@/lib/dataStore";
+import { type LeadInput } from "@/lib/leadScoring";
 import { getAssignedVariantId, registerConversion } from "@/lib/abEngine";
-import { trackFormStart, trackFormSubmit } from "@/lib/tracking";
-import { sendLeadWebhook } from "@/lib/leadWebhook";
+import { trackFormStart } from "@/lib/tracking";
 
 
 export interface LeadFormProps {
@@ -59,20 +58,17 @@ export function LeadForm({ segmentId, defaultProfissao, onSubmitted, submitLabel
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const submissionId = useRef(newId("lead"));
+  const submittingRef = useRef(false);
   const formStartFiredRef = useRef(false);
 
-  const update = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) =>
-    setData((d) => ({ ...d, [k]: v }));
-
-  useEffect(() => {
-    const started =
-      data.nome.trim() || data.email.trim() || data.whatsapp.trim() ||
-      data.profissao || data.formacao || data.faixaEtaria || data.renda || data.momento;
-    if (started && !formStartFiredRef.current) {
+  const update = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) => {
+    if (!formStartFiredRef.current) {
       formStartFiredRef.current = true;
-      trackFormStart({ form_name: "avaliacao-legacy", segmento: segmentId ?? null });
+      trackFormStart({ form_name: "avaliacao-legacy" });
     }
-  }, [data, segmentId]);
+    setData((d) => ({ ...d, [k]: v }));
+  };
 
   const validateStep = (): string | null => {
     if (step === 0) {
@@ -102,17 +98,19 @@ export function LeadForm({ segmentId, defaultProfissao, onSubmitted, submitLabel
   };
 
   const submit = async () => {
-    trackFormSubmit({ form_name: "avaliacao-legacy", segmento: segmentId ?? null, step });
+
     const err = validateStep();
     if (err) { setError(err); return; }
     setError(null);
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setLoading(true);
     try {
       // Prompt 7: persistimos apenas respostas cruas + metadados.
       // Score/faixa de prioridade são SEMPRE derivados ao vivo a partir
       // do scoring_model no admin, nunca congelados no lead.
-      const id = newId("lead");
-      const utm = typeof window !== "undefined" ? captureUtms(window.location.search) : {};
+      const id = submissionId.current;
+      const utm = {};
       const lead: LeadInput & {
         id: string;
         createdAt: string;
@@ -129,12 +127,11 @@ export function LeadForm({ segmentId, defaultProfissao, onSubmitted, submitLabel
         variante_ab: segmentId ? getAssignedVariantId(segmentId) : null,
         status: "novo",
       };
-      await set("leads", id, lead);
-      // Webhook externo (Admin › Tracking). Fire-and-forget, não bloqueia.
-      void sendLeadWebhook(lead as unknown as Record<string, unknown>);
+      await submitLead("leads", id, lead, "avaliacao-legacy");
+
 
       if (segmentId) {
-        await registerConversion(segmentId);
+        try { await registerConversion(segmentId); } catch { /* Analytics cannot fail a received lead. */ }
       }
       if (onSubmitted) {
         // Mantemos a assinatura por compat: callers atuais não usam o score.
@@ -145,6 +142,7 @@ export function LeadForm({ segmentId, defaultProfissao, onSubmitted, submitLabel
     } catch (e) {
       setError("Não foi possível enviar agora. Tente novamente.");
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };

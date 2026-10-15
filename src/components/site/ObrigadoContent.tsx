@@ -9,7 +9,6 @@ import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, BookOpen, FileText, ChevronLeft, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { trackLead } from "@/lib/tracking";
 import { BrandLogo } from "@/components/site/BrandLogo";
 
 const SS_QUALIFICATION = "lastQualificationResult";
@@ -77,9 +76,6 @@ function ObrigadoShell({ children }: { children: React.ReactNode }) {
 }
 
 export function ObrigadoQualificado() {
-  useEffect(() => {
-    trackLead({ qualification: "qualificado" });
-  }, []);
 
   return (
     <ObrigadoShell>
@@ -139,9 +135,6 @@ export function ObrigadoQualificado() {
 }
 
 export function ObrigadoNaoQualificado() {
-  useEffect(() => {
-    trackLead({ qualification: "nao_qualificado" });
-  }, []);
 
   return (
     <ObrigadoShell>

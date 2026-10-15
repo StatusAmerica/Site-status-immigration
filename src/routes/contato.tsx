@@ -33,9 +33,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useContent } from "@/lib/siteContent";
 import { getSiteSettings, defaultSettings, type SiteSettings } from "@/lib/admin/settings";
-import { newId, set } from "@/lib/dataStore";
+import { newId, submitLead } from "@/lib/dataStore";
 import { getOrigin } from "@/lib/origin";
-import { trackFormStart, trackFormSubmit } from "@/lib/tracking";
+import { trackFormStart } from "@/lib/tracking";
 import { getPageSeoFn, buildSeoTags } from "@/lib/pageSeo.functions";
 
 export const Route = createFileRoute("/contato")({
@@ -392,6 +392,8 @@ function ContatoForm() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const submissionId = useRef(newId("lead"));
+  const submittingRef = useRef(false);
   const formStartFiredRef = useRef(false);
 
   function updateValue<K extends keyof typeof values>(k: K, v: (typeof values)[K]) {
@@ -409,7 +411,7 @@ function ContatoForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    trackFormSubmit({ form_name: "contato" });
+
     const parsed = contactMessageSchema.safeParse(values);
     if (!parsed.success) {
       const map: Record<string, string> = {};
@@ -420,9 +422,11 @@ function ContatoForm() {
       return;
     }
     setErrors({});
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setStatus("sending");
 
-    const id = newId("lead");
+    const id = submissionId.current;
     const origin = getOrigin("/contato");
     const record = {
       id,
@@ -438,12 +442,12 @@ function ContatoForm() {
     };
 
     try {
-      await set("leads", id, record);
+      await submitLead("leads", id, record, "contato");
       setStatus("sent");
     } catch {
       setStatus("idle");
       setErrors({ _root: "Não conseguimos enviar agora. Tente novamente." });
-    }
+    } finally { submittingRef.current = false; }
   }
 
   if (status === "sent") {

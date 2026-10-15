@@ -98,6 +98,8 @@ function PrivacidadePage() {
               campanhas e viabilizar remarketing. Esses parceiros podem tratar os dados de
               navegação segundo suas próprias políticas.
             </p>
+            <p className="mt-3">As ferramentas de medição só são carregadas após sua autorização em “Preferências de privacidade”. A permissão de publicidade é opcional e separada. Você pode recusar ou revogar essas escolhas e continuar usando os formulários.</p>
+            <p className="mt-3">A escolha é lembrada por até 180 dias. Com sua autorização, a primeira e a última origem de campanha são mantidas no navegador por até 30 dias e anexadas ao formulário enviado. Identificadores de clique de anúncios dependem da permissão de publicidade. Ao revogar, a atribuição local é apagada; registros já recebidos seguem a política de retenção abaixo.</p>
           </div>
 
           <div>

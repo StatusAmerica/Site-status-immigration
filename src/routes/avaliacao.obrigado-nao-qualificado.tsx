@@ -5,7 +5,6 @@
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ObrigadoNaoQualificado } from "@/components/site/ObrigadoContent";
-import { trackLeadUnqualified } from "@/lib/tracking";
 
 export const Route = createFileRoute("/avaliacao/obrigado-nao-qualificado")({
   head: () => ({
@@ -23,8 +22,5 @@ export const Route = createFileRoute("/avaliacao/obrigado-nao-qualificado")({
 });
 
 function ObrigadoNaoQualificadoPage() {
-  useEffect(() => {
-    trackLeadUnqualified();
-  }, []);
   return <ObrigadoNaoQualificado />;
 }

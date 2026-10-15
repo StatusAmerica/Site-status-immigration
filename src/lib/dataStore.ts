@@ -16,6 +16,9 @@
  */
 
 import type { KvOp, KvResult } from "./kv.server";
+import { captureAttribution, safePage } from "./attribution";
+import { getConsent } from "./consent";
+import { trackReceivedLead, type FormId } from "./tracking";
 
 /**
  * Token anônimo do navegador. Registros de `sessions`, `ab_stats` e
@@ -23,18 +26,20 @@ import type { KvOp, KvResult } from "./kv.server";
  * navegador pode lê-los/atualizá-los depois.
  */
 const CLIENT_TOKEN_KEY = "sna_client_token";
+let memoryToken: string | null = null;
 
 function getClientToken(): string {
   if (typeof window === "undefined") return "ssr";
+  memoryToken ||= crypto.randomUUID();
   try {
     let t = window.localStorage.getItem(CLIENT_TOKEN_KEY);
     if (!t) {
-      t = `ct_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      t = memoryToken;
       window.localStorage.setItem(CLIENT_TOKEN_KEY, t);
     }
     return t;
   } catch {
-    return "anon";
+    return memoryToken;
   }
 }
 
@@ -59,6 +64,17 @@ async function call(req: KvOp): Promise<KvResult> {
 
 const ok = (r: KvResult) => r.status >= 200 && r.status < 300;
 
+/** A success means the server validated and durably stored this submission. */
+export async function submitLead(table: "leads" | "prequal_responses", id: string, value: unknown, form: FormId): Promise<void> {
+  const result = await call({ op: "submitLead", table, id, value, form,
+    consent: getConsent(), attribution: captureAttribution(), conversion_page: safePage(window.location.pathname) });
+  const acknowledgement = result.data as { accepted?: boolean; receipt?: string } | undefined;
+  if (!ok(result) || acknowledgement?.accepted !== true || acknowledgement.receipt !== id) {
+    throw new Error(result.error || "Não conseguimos confirmar o recebimento. Tente novamente.");
+  }
+  try { trackReceivedLead(id, form); } catch { /* Analytics cannot invalidate a received lead. */ }
+}
+
 /** Tabelas cujo registro pertence ao navegador que o criou (`client_token`). */
 const TOKEN_SCOPED: ReadonlyArray<string> = ["sessions", "ab_stats", "leads_partial"];
 
@@ -79,7 +95,7 @@ export type TableName =
   | "prequal_responses";
 
 const PREFIX = "status_";
-const isBrowser = () => typeof window !== "undefined" && !!window.localStorage;
+const isBrowser = () => typeof window !== "undefined";
 
 function cacheRead<T = unknown>(table: TableName): Record<string, T> {
   if (!isBrowser()) return {};
@@ -139,6 +155,7 @@ export async function set<T = unknown>(table: TableName, id: string, value: T): 
 
   const r = await call({ op: "set", table, id, value: payload });
   if (!ok(r)) {
+    if (table === "settings") throw new Error("Não foi possível salvar as configurações.");
     // Loga mas mantém cache local, evita perder input do usuário em falha transitória.
     console.warn("[dataStore] set falhou", table, id, r.error ?? r.status);
   }
@@ -158,5 +175,5 @@ export async function remove(table: TableName, id: string): Promise<void> {
 }
 
 export function newId(prefix = "id"): string {
-  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  return `${prefix}_${crypto.randomUUID()}`;
 }

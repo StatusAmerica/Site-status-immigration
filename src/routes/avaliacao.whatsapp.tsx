@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { ChevronLeft, MessageCircle, ShieldCheck } from "lucide-react";
 import { LeadFormProgressive } from "@/components/site/LeadFormProgressive";
-import { trackFormView, trackWhatsAppSubmit, trackWhatsAppOpened } from "@/lib/tracking";
+import { trackWhatsAppOpened } from "@/lib/tracking";
 import { getOrigin } from "@/lib/origin";
 import { buildWhatsAppLink, leadWhatsAppMessage } from "@/lib/whatsapp";
 import { normalizeBrPhone } from "@/lib/phone";
@@ -68,9 +68,6 @@ function AvaliacaoWhatsAppPage() {
   const search = useSearch({ from: "/avaliacao/whatsapp" });
   const [waLink, setWaLink] = useState<string | null>(null);
 
-  useEffect(() => {
-    trackFormView({ seg: search.seg ?? null, src: search.src ?? null });
-  }, [search.seg, search.src]);
 
   useEffect(() => {
     getOrigin("/avaliacao/whatsapp");
@@ -120,19 +117,6 @@ function AvaliacaoWhatsAppPage() {
       ? `${base}\n\n*Origem:*\n${utmLines.join("\n")}`
       : base;
 
-    const utmMeta = {
-      utm_source: utm.utm_source ?? null,
-      utm_medium: utm.utm_medium ?? null,
-      utm_campaign: utm.utm_campaign ?? null,
-      utm_content: utm.utm_content ?? null,
-      utm_term: utm.utm_term ?? null,
-      gclid: utm.gclid ?? null,
-      fbclid: utm.fbclid ?? null,
-    };
-
-    // Etapa 1: intenção de envio (clique em "Enviar e abrir WhatsApp").
-    trackWhatsAppSubmit(utmMeta);
-
     let link = "";
     try {
       link = await buildWhatsAppLink(message);
@@ -143,13 +127,11 @@ function AvaliacaoWhatsAppPage() {
       setWaLink(link);
       // Abre em nova aba. Pode ser bloqueado por popup blocker; o fallback
       // exibe um botão manual logo abaixo.
-      let opened = false;
       try {
-        const w = window.open(link, "_blank", "noopener,noreferrer");
-        opened = !!w;
+        window.open(link, "_blank", "noopener,noreferrer");
       } catch { /* ignore */ }
-      // Etapa 2: WhatsApp efetivamente aberto (conversão da etapa).
-      if (opened) trackWhatsAppOpened(utmMeta);
+      // Intenção de abrir WhatsApp; não confirma abertura nem conversa.
+      trackWhatsAppOpened();
     }
   };
 
@@ -223,7 +205,6 @@ function AvaliacaoWhatsAppPage() {
                   href={waLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => trackWhatsAppOpened()}
                   className="btn-sweep mt-6 inline-flex items-center gap-2 rounded-lg bg-gold px-6 py-3 font-mono-label text-sm text-primary-foreground hover:bg-gold/90"
                 >
                   <MessageCircle className="h-4 w-4" /> Abrir WhatsApp

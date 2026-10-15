@@ -1,3 +1,4 @@
+import { hasAnalyticsConsent } from "./consent";
 /**
  * Motor de testes A/B para os Heros das LPs.
  *
@@ -20,7 +21,7 @@ import {
 const ASSIGN_KEY = "status_ab_assignments";
 
 function readAssignments(): Record<string, string> {
-  if (typeof window === "undefined") return {};
+  if (typeof window === "undefined" || !hasAnalyticsConsent()) return {};
   try {
     const raw = window.localStorage.getItem(ASSIGN_KEY);
     return raw ? (JSON.parse(raw) as Record<string, string>) : {};
@@ -30,7 +31,7 @@ function readAssignments(): Record<string, string> {
 }
 
 function writeAssignments(map: Record<string, string>) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !hasAnalyticsConsent()) return;
   window.localStorage.setItem(ASSIGN_KEY, JSON.stringify(map));
 }
 
@@ -46,6 +47,7 @@ function pickWeighted(variants: HeroVariant[]): HeroVariant {
 }
 
 async function bumpImpression(variant: HeroVariant) {
+  if (!hasAnalyticsConsent()) return;
   const existing = await get<AbStats>("ab_stats", variant.id);
   const next: AbStats = {
     id: variant.id,
@@ -90,6 +92,7 @@ export function getAssignedVariantId(segmentId: string): string | null {
 
 /** Incrementa conversion da variante atribuída. Chamado no submit do form. */
 export async function registerConversion(segmentId: string): Promise<void> {
+  if (!hasAnalyticsConsent()) return;
   const id = getAssignedVariantId(segmentId);
   if (!id) return;
   const existing = await get<AbStats>("ab_stats", id);

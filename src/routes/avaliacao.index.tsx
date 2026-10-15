@@ -16,7 +16,6 @@ import { useEffect, useMemo } from "react";
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { ChevronLeft, ShieldCheck } from "lucide-react";
 import { LeadFormProgressive } from "@/components/site/LeadFormProgressive";
-import { trackFormView } from "@/lib/tracking";
 import { getOrigin } from "@/lib/origin";
 import type { QualResult } from "@/lib/leadQualification";
 import { saveQualificationResult, type QualificationResult } from "@/components/site/ObrigadoContent";
@@ -73,9 +72,6 @@ function AvaliacaoPage() {
   const search = useSearch({ from: "/avaliacao/" });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    trackFormView({ seg: search.seg ?? null, src: search.src ?? null });
-  }, [search.seg, search.src]);
 
   // Captura origem silenciosamente, fica disponível no payload do lead (admin/tracking)
   useEffect(() => {

@@ -1,93 +1,184 @@
-/**
- * TrackingInjector, lê settings/tracking do dataStore e injeta scripts/metas
- * no <head>. Re-aplica em mudanças (admin) e na navegação entre rotas.
- *
- * Roda apenas no client.
- */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
+import { CONSENT_EVENT, CONSENT_KEY, getConsent, saveConsent } from "@/lib/consent";
+import { captureAttribution, safePage } from "@/lib/attribution";
+import { trackEvent } from "@/lib/tracking";
 import { getTrackingSettings } from "@/lib/admin/settings";
-
-const MARK = "data-status-tracking";
-
-function clear() {
-  document.head.querySelectorAll(`[${MARK}]`).forEach((n) => n.remove());
+export const GTM_ID = "GTM-5ZFTCPP6";
+let initialized = false;
+let loaded = false;
+let previousPage = "";
+function command(..._args: unknown[]) {
+  // Google's command queue expects the Arguments object used by the gtag snippet.
+  // eslint-disable-next-line prefer-rest-params
+  (window.dataLayer ||= []).push(arguments);
 }
-
-function addScript(id: string, src?: string, inner?: string) {
-  const s = document.createElement("script");
-  s.setAttribute(MARK, id);
-  if (src) { s.async = true; s.src = src; }
-  if (inner) s.text = inner;
-  document.head.appendChild(s);
-}
-
-function addMeta(id: string, name: string, content: string) {
-  const m = document.createElement("meta");
-  m.setAttribute(MARK, id);
-  m.setAttribute("name", name);
-  m.setAttribute("content", content);
-  document.head.appendChild(m);
-}
-
-async function apply() {
-  if (typeof window === "undefined") return;
-  const t = await getTrackingSettings();
-  clear();
-
-  if (t.ga4_enabled && t.ga4_id) {
-    addScript("ga4-src", `https://www.googletagmanager.com/gtag/js?id=${t.ga4_id}`);
-    addScript("ga4-init", undefined,
-      `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${t.ga4_id}');`);
+function applyConsent() {
+  loaded ||= !!document.getElementById("status-gtm");
+  if (!initialized) {
+    command("consent", "default", {
+      analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+    initialized = true;
   }
-  if (t.gtm_enabled && t.gtm_id) {
-    addScript("gtm-init", undefined,
-      `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${t.gtm_id}');`);
+  const consent = getConsent();
+  command("consent", "update", {
+    analytics_storage: consent?.analytics ? "granted" : "denied",
+    ad_storage: consent?.marketing ? "granted" : "denied",
+    ad_user_data: consent?.marketing ? "granted" : "denied",
+    ad_personalization: consent?.marketing ? "granted" : "denied",
+  });
+  captureAttribution();
+  if (safePage(window.location.pathname) === "/private") {
+    if (loaded) window.location.reload();
+    return;
   }
-  if (t.meta_pixel_enabled && t.meta_pixel_id) {
-    addScript("pixel-init", undefined,
-      `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${t.meta_pixel_id}');fbq('track','PageView');`);
+  if (!consent?.analytics) return;
+  if (!loaded) {
+    loaded = true;
+    (window.dataLayer ||= []).push({ "gtm.start": Date.now(), event: "gtm.js" });
+    const script = document.createElement("script");
+    script.id = "status-gtm";
+    script.async = true;
+    script.src = "https://www.googletagmanager.com/gtm.js?id=" + GTM_ID;
+    document.head.appendChild(script);
   }
-  if (t.gsc_enabled && t.gsc_verification) addMeta("gsc", "google-site-verification", t.gsc_verification);
-  if (t.rdstation_enabled && t.rdstation_id) {
-    addScript("rd", `https://d335luupugsy2.cloudfront.net/js/loader-scripts/${t.rdstation_id}-loader.js`);
-  }
-  if (t.custom_head_enabled && t.custom_head.trim()) {
-    const wrap = document.createElement("div");
-    wrap.innerHTML = t.custom_head;
-    Array.from(wrap.children).forEach((el) => { el.setAttribute(MARK, "custom"); document.head.appendChild(el); });
+  const page = window.location.pathname;
+  if (previousPage !== page) {
+    previousPage = page;
+    trackEvent("page_view");
   }
 }
-
-/**
- * Executa `apply` fora do caminho crítico de renderização.
- * Usa `requestIdleCallback` quando disponível (com timeout de 2 s para não
- * atrasar demais em abas ociosas) e cai para `setTimeout` em navegadores
- * sem suporte. Isso reduz TBT/render-blocking sem perder eventos —
- * `dataLayer` continua sendo populado sincronamente por `emitGa`.
- */
-function scheduleApply() {
-  if (typeof window === "undefined") return;
-  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void })
-    .requestIdleCallback;
-  if (typeof ric === "function") {
-    ric(() => { void apply(); }, { timeout: 2000 });
-  } else {
-    setTimeout(() => { void apply(); }, 1500);
-  }
-}
-
 export function TrackingInjector() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  useEffect(() => { scheduleApply(); }, [pathname]);
+  const href = useRouterState({ select: (s) => s.location.href });
+  const [open, setOpen] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
+  const [marketing, setMarketing] = useState(false);
   useEffect(() => {
-    const onChange = () => scheduleApply();
-    window.addEventListener("status:admin-change", onChange);
-    window.addEventListener("storage", onChange);
+    let cancelled = false;
+    void getTrackingSettings().then((settings) => {
+      if (cancelled || !settings.gsc_enabled || !settings.gsc_verification) return;
+      if (document.querySelector('meta[name="google-site-verification"]')) return;
+      const meta = document.createElement("meta");
+      meta.name = "google-site-verification";
+      meta.content = settings.gsc_verification;
+      document.head.appendChild(meta);
+    });
     return () => {
-      window.removeEventListener("status:admin-change", onChange);
-      window.removeEventListener("storage", onChange);
+      cancelled = true;
     };
   }, []);
-  return null;
+  useEffect(() => {
+    const sync = () => {
+      const c = getConsent();
+      setAnalytics(c?.analytics ?? false);
+      setMarketing(c?.marketing ?? false);
+      setOpen(!c);
+      applyConsent();
+    };
+    sync();
+    const storage = (event: StorageEvent) => {
+      if (event.key === CONSENT_KEY || event.key === null) {
+        sync();
+        window.location.reload();
+      }
+    };
+    window.addEventListener(CONSENT_EVENT, sync);
+    window.addEventListener("storage", storage);
+    const click = (event: MouseEvent) => {
+      const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+      if (!link) return;
+      try {
+        const url = new URL(link.getAttribute("href")!, window.location.origin);
+        if (
+          ["wa.me", "api.whatsapp.com", "web.whatsapp.com"].includes(url.hostname) ||
+          url.protocol === "whatsapp:"
+        )
+          trackEvent("click_whatsapp");
+      } catch {
+        /* invalid href */
+      }
+    };
+    document.addEventListener("click", click, true);
+    return () => {
+      window.removeEventListener(CONSENT_EVENT, sync);
+      window.removeEventListener("storage", storage);
+      document.removeEventListener("click", click, true);
+    };
+  }, []);
+  useEffect(() => {
+    applyConsent();
+  }, [href]);
+  if (safePage(href) === "/private") return null;
+  const choose = (a: boolean, m: boolean) => {
+    const old = getConsent();
+    saveConsent(a, a && m);
+    setOpen(false);
+    // Third-party code cannot be unloaded reliably; reload on revocation.
+    if ((old?.analytics && !a) || (old?.marketing && !m)) window.location.reload();
+  };
+  return (
+    <>
+      <button
+        className="fixed bottom-2 left-2 z-50 rounded bg-background px-3 py-2 text-xs shadow"
+        onClick={() => setOpen(true)}
+      >
+        Preferências de privacidade
+      </button>
+      {open && (
+        <section
+          role="dialog"
+          aria-label="Preferências de privacidade"
+          className="fixed bottom-12 left-4 right-4 z-[100] max-w-xl rounded-xl border bg-background p-5 shadow-xl"
+        >
+          <h2 className="font-semibold">Sua privacidade</h2>
+          <p className="my-3 text-sm">
+            Com sua permissão, usamos ferramentas para medir visitas e campanhas. Você pode enviar
+            formulários sem aceitar.{" "}
+            <a href="/privacidade" className="underline">
+              Política de privacidade
+            </a>
+            .
+          </p>
+          <label className="block text-sm">
+            <input
+              type="checkbox"
+              checked={analytics}
+              onChange={(e) => {
+                setAnalytics(e.target.checked);
+                if (!e.target.checked) setMarketing(false);
+              }}
+            />{" "}
+            Medição de visitas e origem das campanhas
+          </label>
+          <label className="my-3 block text-sm">
+            <input
+              type="checkbox"
+              checked={marketing}
+              disabled={!analytics}
+              onChange={(e) => setMarketing(e.target.checked)}
+            />{" "}
+            Publicidade e identificadores de clique
+          </label>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <button className="rounded border px-3 py-2" onClick={() => choose(false, false)}>
+              Recusar opcionais
+            </button>
+            <button
+              className="rounded border px-3 py-2"
+              onClick={() => choose(analytics, marketing)}
+            >
+              Salvar escolhas
+            </button>
+            <button className="rounded border px-3 py-2" onClick={() => choose(true, true)}>
+              Aceitar todos
+            </button>
+          </div>
+        </section>
+      )}
+    </>
+  );
 }

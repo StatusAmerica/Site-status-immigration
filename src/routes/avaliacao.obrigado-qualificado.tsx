@@ -5,7 +5,6 @@
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ObrigadoQualificado } from "@/components/site/ObrigadoContent";
-import { trackLeadQualified } from "@/lib/tracking";
 
 export const Route = createFileRoute("/avaliacao/obrigado-qualificado")({
   head: () => ({
@@ -23,8 +22,5 @@ export const Route = createFileRoute("/avaliacao/obrigado-qualificado")({
 });
 
 function ObrigadoQualificadoPage() {
-  useEffect(() => {
-    trackLeadQualified();
-  }, []);
   return <ObrigadoQualificado />;
 }

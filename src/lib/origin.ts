@@ -1,3 +1,5 @@
+import { hasAnalyticsConsent } from "./consent";
+import { captureAttribution, safePage } from "./attribution";
 /**
  * origin.ts, captura de origem do lead (UTM + página interna).
  *
@@ -39,7 +41,9 @@ const isBrowser = () => typeof window !== "undefined";
  * `last` seria a própria /avaliacao (e por isso é filtrada em getOrigin).
  */
 export function trackRouteChange(pathname: string, title?: string) {
-  if (!isBrowser()) return;
+  if (!isBrowser() || !hasAnalyticsConsent()) return;
+  pathname = safePage(pathname);
+  captureAttribution();
   try {
     // landing: só seta uma vez por sessão
     if (!sessionStorage.getItem(SS_LANDING)) {
@@ -47,7 +51,7 @@ export function trackRouteChange(pathname: string, title?: string) {
         SS_LANDING,
         JSON.stringify({ path: pathname, ts: new Date().toISOString() }),
       );
-      if (document.referrer) sessionStorage.setItem(SS_REFERRER, document.referrer);
+      if (document.referrer) { try { sessionStorage.setItem(SS_REFERRER, new URL(document.referrer).origin); } catch { /* invalid */ } }
     }
     // Antes de sobrescrever "last", promove o valor atual para "prev",
     // desde que seja uma rota diferente (evita prev == last após reload/StrictMode).
@@ -59,7 +63,7 @@ export function trackRouteChange(pathname: string, title?: string) {
       else sessionStorage.removeItem(SS_PREV_TITLE);
     }
     sessionStorage.setItem(SS_LAST_PATH, pathname);
-    if (title) sessionStorage.setItem(SS_LAST_TITLE, title);
+    sessionStorage.setItem(SS_LAST_TITLE, pathname);
   } catch {
     /* sessionStorage indisponível, ignorar */
   }
@@ -72,27 +76,20 @@ export function trackRouteChange(pathname: string, title?: string) {
  */
 export function getOrigin(currentPath?: string): LeadOrigin {
   const utm: Record<string, string> = {};
-  if (!isBrowser()) {
+  if (!isBrowser() || !hasAnalyticsConsent()) {
     return {
       utm,
       internal: { from_path: null, from_title: null, referrer: null, landing_path: null, landing_ts: null },
     };
   }
   try {
-    const params = new URLSearchParams(window.location.search);
-    [
-      "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term",
-      "gclid", "fbclid", "src",
-    ].forEach((k) => {
-      const v = params.get(k);
-      if (v) utm[k] = v;
-    });
+    Object.assign(utm, captureAttribution()?.last.params ?? {});
 
     const lastPath = sessionStorage.getItem(SS_LAST_PATH);
     const lastTitle = sessionStorage.getItem(SS_LAST_TITLE);
     const prevPath = sessionStorage.getItem(SS_PREV_PATH);
     const prevTitle = sessionStorage.getItem(SS_PREV_TITLE);
-    const referrer = sessionStorage.getItem(SS_REFERRER) || document.referrer || null;
+    const referrer = sessionStorage.getItem(SS_REFERRER) || null;
     const landingRaw = sessionStorage.getItem(SS_LANDING);
     let landing_path: string | null = null;
     let landing_ts: string | null = null;

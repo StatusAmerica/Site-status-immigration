@@ -26,15 +26,14 @@ import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { newId, set, get, remove } from "@/lib/dataStore";
+import { newId, set, get, remove, submitLead } from "@/lib/dataStore";
 import { type LeadInput } from "@/lib/leadScoring";
 import { evaluateQualification, type QualResult } from "@/lib/leadQualification";
 import { getAssignedVariantId, registerConversion } from "@/lib/abEngine";
 import { getOrigin, type LeadOrigin } from "@/lib/origin";
 import { markSessionStartedForm, markSessionConverted } from "@/lib/sessions";
 import { loadModel, computeScore } from "@/lib/scoring";
-import { trackFormStart, trackFormSubmit } from "@/lib/tracking";
-import { sendLeadWebhook } from "@/lib/leadWebhook";
+import { trackFormStart } from "@/lib/tracking";
 import { LEAD_OPTION_LABELS } from "@/lib/leadWebhookPayload";
 
 
@@ -104,12 +103,14 @@ const SS_PARTIAL_ID = "sna_partial_id";
 
 function getOrCreatePartialId(): string {
   if (typeof window === "undefined") return newId("partial");
+  try {
   let id = window.sessionStorage.getItem(SS_PARTIAL_ID);
   if (!id) {
     id = newId("partial");
     window.sessionStorage.setItem(SS_PARTIAL_ID, id);
   }
   return id;
+  } catch { return newId("partial"); }
 }
 
 export interface PartialLead {
@@ -135,6 +136,8 @@ export function LeadFormProgressive({
   const [error, setError] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
   const [restoredCount, setRestoredCount] = useState(0);
+  const submissionId = useRef(newId("lead"));
+  const submittingRef = useRef(false);
   const partialIdRef = useRef<string>("");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const formStartFiredRef = useRef<boolean>(false);
@@ -176,8 +179,13 @@ export function LeadFormProgressive({
   }, []);
 
 
-  const update = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) =>
+  const update = <K extends keyof LeadInput>(k: K, v: LeadInput[K]) => {
+    if (!formStartFiredRef.current) {
+      formStartFiredRef.current = true;
+      trackFormStart({ form_name: currentPath === "/avaliacao/whatsapp" ? "avaliacao-whatsapp" : "avaliacao" });
+    }
     setData((d) => ({ ...d, [k]: v }));
+  };
 
   const resetForm = async () => {
     try { if (partialIdRef.current) await remove("leads_partial", partialIdRef.current); } catch { /* ignore */ }
@@ -223,10 +231,7 @@ export function LeadFormProgressive({
     void set("leads_partial", partialIdRef.current, partial);
     // Marca a sessão como "iniciou o formulário" assim que o 1º campo é válido.
     void markSessionStartedForm();
-    if (!formStartFiredRef.current) {
-      formStartFiredRef.current = true;
-      trackFormStart({ segmento: segmentId ?? null });
-    }
+
   }, [data, done, segmentId, currentPath, restored]);
 
   const advance = () => {
@@ -257,17 +262,19 @@ export function LeadFormProgressive({
   };
 
   const submit = async () => {
-    trackFormSubmit({ segmento: segmentId ?? null, step: stepIndex });
+
     const current = dataRef.current;
     if (steps.some((f) => !isFieldValid(f.key, current))) {
       setError("Complete todas as perguntas antes de enviar.");
       return;
     }
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setError(null);
     setLoading(true);
     try {
       // -------- Modo CAPTURA: cria novo lead --------
-      const id = newId("lead");
+      const id = submissionId.current;
       const origin = getOrigin(currentPath);
       // Qualificação baseada no score dinâmico do admin: >= 50 vai ao comercial.
       // Heurística antiga preservada apenas para gerar `reasons` informativos.
@@ -304,11 +311,8 @@ export function LeadFormProgressive({
         qualification: qual.result,
         qualification_reasons: qual.reasons,
       };
-      // `set` já não lança, loga warn e mantém cache local em caso de falha.
-      await set("leads", id, lead);
+      await submitLead("leads", id, lead, currentPath === "/avaliacao/whatsapp" ? "avaliacao-whatsapp" : "avaliacao");
 
-      // Webhook externo (Admin › Tracking). Fire-and-forget, não bloqueia.
-      void sendLeadWebhook(lead as unknown as Record<string, unknown>);
 
       // Guarda payload do lead qualificado para a página de obrigado montar
       // a mensagem do WhatsApp. Sessão apenas, limpo após uso.
@@ -356,6 +360,7 @@ export function LeadFormProgressive({
       console.error("[avaliacao] submit failed", err);
       setError("Não foi possível enviar agora. Tente novamente.");
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };
