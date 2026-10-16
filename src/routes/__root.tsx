@@ -90,6 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Imigração legal aos EUA por mérito profissional. Levantamento inicial de informações para vistos EB-2 NIW, EB-1 e EB-3, com Green Card para cônjuge e filhos, junto do requerente principal." },
       { property: "og:image", content: "https://statusimmigrationlaw.com.br/__l5e/assets-v1/db6af206-dff3-4b36-b8f2-a6d534ba74a4/og-home.jpg" },
       { name: "twitter:image", content: "https://statusimmigrationlaw.com.br/__l5e/assets-v1/db6af206-dff3-4b36-b8f2-a6d534ba74a4/og-home.jpg" },
+      { name: "facebook-domain-verification", content: "yeorkfek3h2k9nnm3dr34cgy4lx6ga" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

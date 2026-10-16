@@ -39,7 +39,10 @@ export const Route = createFileRoute("/")({
       loaderData?.seo,
     );
     return {
-      meta,
+      meta: [
+        ...meta,
+        { name: "facebook-domain-verification", content: "yeorkfek3h2k9nnm3dr34cgy4lx6ga" },
+      ],
       links,
     };
   },
