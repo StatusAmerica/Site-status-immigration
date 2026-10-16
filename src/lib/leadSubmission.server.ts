@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { env, waitUntil } from "cloudflare:workers";
 import { submissionSchema, parseLeadValue } from "./leadSubmission";
 import { safePage } from "./attribution";
 import { qualifyVisas } from "./visaQualifier";
@@ -134,7 +134,7 @@ export async function receiveLead(input: unknown, caller: KvCaller): Promise<KvR
       : {}),
   };
   // D1 batch is transactional. A receipt binds one immutable payload to its browser.
-  await env.DB.batch([
+  const [, inserted] = await env.DB.batch([
     env.DB.prepare(
       `INSERT OR IGNORE INTO lead_receipts (receipt_id, table_name, owner_hash, payload_hash)
       SELECT ?1, ?2, ?3, ?4 WHERE NOT EXISTS (SELECT 1 FROM kv_records WHERE table_name = ?2 AND record_id = ?1)`,
@@ -159,5 +159,13 @@ export async function receiveLead(input: unknown, caller: KvCaller): Promise<KvR
       status: 409,
       error: "Envio já registrado com outros dados. Recarregue para iniciar outro envio.",
     };
+  // Só no primeiro envio (reenvio idêntico não grava de novo, então não duplica no CRM).
+  // waitUntil: o webhook roda depois da resposta, sem atrasar o usuário.
+  if (inserted.meta.changes > 0) {
+    const { sendLeadToCRM } = await import("./crm.server");
+    waitUntil(
+      sendLeadToCRM({ lead: record, attribution, conversion_page: record.conversion_page, id: req.id }),
+    );
+  }
   return { status: 200, data: { accepted: true, receipt: req.id, crm_status: "pending_spec" } };
 }
