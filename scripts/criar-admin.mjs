@@ -11,6 +11,9 @@
  */
 import { execFileSync } from "node:child_process";
 import { webcrypto as crypto } from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import { ask, askHidden } from "./lib/prompt.mjs";
 
@@ -35,21 +38,59 @@ async function hashPassword(password) {
 
 const sq = (s) => `'${String(s).replace(/'/g, "''")}'`;
 
+function getArg(name) {
+  const idx = process.argv.indexOf(name);
+  if (idx !== -1 && idx + 1 < process.argv.length) {
+    return process.argv[idx + 1];
+  }
+  return null;
+}
+
 async function main() {
-  const email = (await ask("E-mail do novo admin: ")).toLowerCase();
+  const argEmail = getArg("--email") || process.env.ADMIN_EMAIL;
+  const email = (argEmail || (await ask("E-mail do novo admin: "))).toLowerCase().trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("E-mail inválido.");
-  const password = await askHidden(`Senha (mín. ${MIN_PASSWORD_LENGTH} caracteres, não aparece na tela): `);
-  if (password.length < MIN_PASSWORD_LENGTH) throw new Error("Senha curta demais.");
-  const confirm = await askHidden("Repita a senha: ");
-  if (confirm !== password) throw new Error("As senhas não conferem.");
+
+  const argPassword = getArg("--password") || getArg("--senha") || process.env.ADMIN_PASSWORD;
+  let password = argPassword;
+  if (!password) {
+    password = await askHidden(`Senha (mín. ${MIN_PASSWORD_LENGTH} caracteres): `);
+    if (password.length < MIN_PASSWORD_LENGTH) throw new Error("Senha curta demais.");
+    const confirm = await askHidden("Repita a senha: ");
+    if (confirm !== password) throw new Error("As senhas não conferem.");
+  } else if (password.length < MIN_PASSWORD_LENGTH) {
+    throw new Error(`Senha curta demais (mínimo ${MIN_PASSWORD_LENGTH} caracteres).`);
+  }
 
   const hash = await hashPassword(password);
   const sql =
     `INSERT INTO admin_users (id, email, password_hash) VALUES (${sq(crypto.randomUUID())}, ${sq(email)}, ${sq(hash)}) ` +
     `ON CONFLICT (email) DO UPDATE SET password_hash = excluded.password_hash, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now');`;
 
-  execFileSync("npx", ["wrangler", "d1", "migrations", "apply", D1_NAME, target], { stdio: "inherit" });
-  execFileSync("npx", ["wrangler", "d1", "execute", D1_NAME, target, "--command", sql], { stdio: ["inherit", "ignore", "inherit"] });
+  const wranglerBin = path.resolve("node_modules/wrangler/bin/wrangler.js");
+  const runWrangler = (args, options = {}) => {
+    return execFileSync(process.execPath, [wranglerBin, ...args], {
+      stdio: "inherit",
+      ...options,
+    });
+  };
+
+  runWrangler(["d1", "migrations", "apply", D1_NAME, target]);
+
+  const tmpSql = path.join(os.tmpdir(), `status-admin-${Date.now()}.sql`);
+  fs.writeFileSync(tmpSql, sql, "utf8");
+  try {
+    runWrangler(["d1", "execute", D1_NAME, target, "--file", tmpSql], {
+      stdio: ["inherit", "ignore", "inherit"],
+    });
+  } finally {
+    try {
+      fs.unlinkSync(tmpSql);
+    } catch {
+      /* ignore */
+    }
+  }
+
   console.log(`✔ Admin ${email} pronto (${target === "--local" ? "banco local" : "produção"}).`);
 }
 

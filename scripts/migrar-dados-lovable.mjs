@@ -104,7 +104,8 @@ export function buildSql(rows) {
 }
 
 function wrangler(args) {
-  execFileSync("npx", ["wrangler", ...args], { stdio: "inherit" });
+  const wranglerBin = join(dirname(fileURLToPath(import.meta.url)), "..", "node_modules", "wrangler", "bin", "wrangler.js");
+  execFileSync(process.execPath, [wranglerBin, ...args], { stdio: "inherit" });
 }
 
 async function main() {

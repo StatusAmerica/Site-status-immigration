@@ -8,11 +8,11 @@ export async function ask(question) {
   return answer.trim();
 }
 
-/** Lê a senha sem mostrar nada na tela. */
+/** Lê a senha mostrando asteriscos na tela para feedback. */
 export function askHidden(question) {
   return new Promise((resolve, reject) => {
     const { stdin, stdout } = process;
-    if (!stdin.isTTY) return reject(new Error("Terminal sem TTY: use LOVABLE_ADMIN_PASSWORD."));
+    if (!stdin.isTTY) return reject(new Error("Terminal sem TTY."));
     stdout.write(question);
     let value = "";
     stdin.setRawMode(true);
@@ -31,8 +31,15 @@ export function askHidden(question) {
           stdin.setRawMode(false);
           process.exit(130);
         }
-        if (ch === "\u007f" || ch === "\b") value = value.slice(0, -1);
-        else value += ch;
+        if (ch === "\u007f" || ch === "\b") {
+          if (value.length > 0) {
+            value = value.slice(0, -1);
+            stdout.write("\b \b");
+          }
+        } else {
+          value += ch;
+          stdout.write("*");
+        }
       }
     };
     stdin.on("data", onData);
