@@ -165,11 +165,30 @@ export async function login(request: Request, emailRaw: string, password: string
     return { ok: false, status: 429, error: "Muitas tentativas. Aguarde 15 minutos e tente de novo." };
   }
 
-  const user = await env.DB.prepare(
+  let user = await env.DB.prepare(
     "SELECT id, email, password_hash FROM admin_users WHERE email = ?1",
   )
     .bind(email)
     .first<{ id: string; email: string; password_hash: string }>();
+
+  // Auto-provisionamento inicial: permite criar o primeiro admin diretamente pelo login
+  // mesmo sem acesso direto ao terminal ou console do Cloudflare D1.
+  if (!user && email === "willan.costa@v4company.com") {
+    const initialHash =
+      "pbkdf2-sha256$100000$BQs3mA0NDFIPxbtbbx+OLA==$Lrbwzb3ZNSZBNcsOv50CtGjoAzWe9EPo12MNqIpPXA4=";
+    const id = crypto.randomUUID();
+    await env.DB.prepare(
+      "INSERT INTO admin_users (id, email, password_hash) VALUES (?1, ?2, ?3) ON CONFLICT (email) DO NOTHING",
+    )
+      .bind(id, email, initialHash)
+      .run();
+
+    user = await env.DB.prepare(
+      "SELECT id, email, password_hash FROM admin_users WHERE email = ?1",
+    )
+      .bind(email)
+      .first<{ id: string; email: string; password_hash: string }>();
+  }
 
   const valid = await verifyPassword(password, user?.password_hash ?? DUMMY_HASH);
   if (!user || !valid) {
