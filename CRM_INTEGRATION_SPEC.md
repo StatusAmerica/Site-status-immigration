@@ -10,28 +10,28 @@ Qualquer mudança no envio, no payload ou nos nomes de campos precisa ser reflet
 
 ## 1. Plataforma
 
-| Item | Valor |
-|---|---|
-| CRM | CRM da V4 (Agente de IA + CRM) — painel `https://v4.sistemacrmcomia.com.br` |
-| Conta | Status na América |
-| Recurso | Webhook de **entrada** "Leads SITE" (id 166) — Configurações › Webhooks › Entrada |
-| Fluxo acionado | "Lead do Site → CRM" (id 3955) — Fluxos |
+| Item           | Valor                                                                             |
+| -------------- | --------------------------------------------------------------------------------- |
+| CRM            | CRM da V4 (Agente de IA + CRM) — painel `https://v4.sistemacrmcomia.com.br`       |
+| Conta          | Status na América                                                                 |
+| Recurso        | Webhook de **entrada** "Leads SITE" (id 166) — Configurações › Webhooks › Entrada |
+| Fluxo acionado | "Lead do Site → CRM" (id 3955) — Fluxos                                           |
 
 ## 2. Endpoint
 
-| Item | Valor |
-|---|---|
-| URL | `https://webhook.agendasistemacrm.com.br/api/v1/webhook-in/31Tr7r6Ausr2nCuOdZTFrZJJ` |
-| Método | `POST` |
-| Content-Type | `application/json` |
-| Resposta esperada | HTTP 2xx. O corpo da resposta não é usado pelo site. |
+| Item              | Valor                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| URL               | `https://webhook.agendasistemacrm.com.br/api/v1/webhook-in/31Tr7r6Ausr2nCuOdZTFrZJJ` |
+| Método            | `POST`                                                                               |
+| Content-Type      | `application/json`                                                                   |
+| Resposta esperada | HTTP 2xx. O corpo da resposta não é usado pelo site.                                 |
 
 ## 3. Autenticação
 
 - **Atual:** o token no caminho da URL é o segredo. Tratar a URL como credencial: não expor no front-end, no GTM nem em repositório público.
 - **Recomendado (próximo passo):**
   1. Mover a URL para variável de ambiente `CRM_WEBHOOK_URL`.
-  2. Ativar no webhook do CRM a opção *Segurança › exigir header* (`X-Webhook-Token`) e guardar o valor em `CRM_WEBHOOK_TOKEN`.
+  2. Ativar no webhook do CRM a opção _Segurança › exigir header_ (`X-Webhook-Token`) e guardar o valor em `CRM_WEBHOOK_TOKEN`.
   3. Enviar o header em toda requisição.
 
 ## 4. Quando enviar (regras de disparo)
@@ -46,30 +46,30 @@ Qualquer mudança no envio, no payload ou nos nomes de campos precisa ser reflet
 
 Evento único: `lead.created`. Todas as chaves são sempre enviadas; valor vazio = `""`.
 
-| Chave | Tipo | Exemplo | Origem no site |
-|---|---|---|---|
-| `event` | string | `lead.created` | fixo |
-| `id` | string | `lead_3e95…` | id do lead no D1 |
-| `created_at` | ISO 8601 | `2026-10-16T18:56:34.189Z` | `createdAt` do lead |
-| `from_title` | string | `Status Immigration Law Firm` | fixo |
-| `nome` | string | `Maria Souza` | campo `nome` |
-| `email` | string | `maria@exemplo.com` | campo `email` |
-| `whatsapp` | string | `(31) 99999-0000` | campo `whatsapp` (como digitado) |
-| `whatsapp_e164` | string | `5531999990000` | só dígitos; prefixa `55` se tiver até 11 dígitos |
-| `objetivo_visto` / `objetivo_visto_label` | string | `trabalhar` / `Trabalhar` | campo `objetivo_visto` |
-| `profissao` / `profissao_label` | string | `ti` / `Tecnologia / TI` | campo `profissao` |
-| `formacao` / `formacao_label` | string | `pos` / `Pós-graduação` | campo `formacao` |
-| `faixa_etaria` / `faixa_etaria_label` | string | `30_39` / `30 a 39` | campo `faixaEtaria` |
-| `renda` / `renda_label` | string | `20_40` / `R$ 20–40 mil` | campo `renda` |
-| `momento` / `momento_label` | string | `proximos_1_2` / `Próximos 1–2 anos` | campo `momento` |
-| `segmento` | string | `""` | segmento da página, se houver |
-| `score` | number \| `""` | `71` | score local (não é qualificação comercial) |
-| `qualification` | string | `qualificado` / `nao_qualificado` | regra local do formulário |
-| `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term` | string | `google` | atribuição *last touch* (cai para *first touch*) |
-| `gclid`, `fbclid` | string | `""` | só quando há consentimento de marketing |
-| `referrer` | string | `https://www.google.com` | atribuição |
-| `landing_page` | string | `/` | atribuição |
-| `conversion_page` | string | `/avaliacao` | página do envio |
+| Chave                                                                 | Tipo           | Exemplo                              | Origem no site                                   |
+| --------------------------------------------------------------------- | -------------- | ------------------------------------ | ------------------------------------------------ |
+| `event`                                                               | string         | `lead.created`                       | fixo                                             |
+| `id`                                                                  | string         | `lead_3e95…`                         | id do lead no D1                                 |
+| `created_at`                                                          | ISO 8601       | `2026-10-16T18:56:34.189Z`           | `createdAt` do lead                              |
+| `from_title`                                                          | string         | `Status Immigration Law Firm`        | fixo                                             |
+| `nome`                                                                | string         | `Maria Souza`                        | campo `nome`                                     |
+| `email`                                                               | string         | `maria@exemplo.com`                  | campo `email`                                    |
+| `whatsapp`                                                            | string         | `(31) 99999-0000`                    | campo `whatsapp` (como digitado)                 |
+| `whatsapp_e164`                                                       | string         | `5531999990000`                      | só dígitos; prefixa `55` se tiver até 11 dígitos |
+| `objetivo_visto` / `objetivo_visto_label`                             | string         | `trabalhar` / `Trabalhar`            | campo `objetivo_visto`                           |
+| `profissao` / `profissao_label`                                       | string         | `ti` / `Tecnologia / TI`             | campo `profissao`                                |
+| `formacao` / `formacao_label`                                         | string         | `pos` / `Pós-graduação`              | campo `formacao`                                 |
+| `faixa_etaria` / `faixa_etaria_label`                                 | string         | `30_39` / `30 a 39`                  | campo `faixaEtaria`                              |
+| `renda` / `renda_label`                                               | string         | `20_40` / `R$ 20–40 mil`             | campo `renda`                                    |
+| `momento` / `momento_label`                                           | string         | `proximos_1_2` / `Próximos 1–2 anos` | campo `momento`                                  |
+| `segmento`                                                            | string         | `""`                                 | segmento da página, se houver                    |
+| `score`                                                               | number \| `""` | `71`                                 | score local (não é qualificação comercial)       |
+| `qualification`                                                       | string         | `qualificado` / `nao_qualificado`    | regra local do formulário                        |
+| `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term` | string         | `google`                             | atribuição _last touch_ (cai para _first touch_) |
+| `gclid`, `fbclid`                                                     | string         | `""`                                 | só quando há consentimento de marketing          |
+| `referrer`                                                            | string         | `https://www.google.com`             | atribuição                                       |
+| `landing_page`                                                        | string         | `/`                                  | atribuição                                       |
+| `conversion_page`                                                     | string         | `/avaliacao`                         | página do envio                                  |
 
 Os rótulos (`*_label`) vêm do mesmo dicionário usado no formulário (`objetivo_visto`, `profissao`, `formacao`, `faixaEtaria`, `renda`, `momento`). Ao criar uma nova opção no formulário, incluir o rótulo no envio também.
 
@@ -93,21 +93,25 @@ Os rótulos (`*_label`) vêm do mesmo dicionário usado no formulário (`objetiv
    - Horizonte de Mudança para os EUA (5555) ← `{{momento_label}}`
    - Origem UTM / Campanha (5636) ← `{{utm_source}} / {{utm_medium}} / {{utm_campaign}}`
    - Já Preencheu Formulário da LP (5637) ← verdadeiro
-3. Responsável: Willan (usuário 17650)
+3. Responsável: **David** (usuário 17649), responsável por todos os leads do site
 4. Fonte: Landing Page - Formulário Longo (17308)
-5. Mensagem de boas-vindas no WhatsApp para o lead
-6. *(pendente)* Aviso por e-mail ao escritório via Resend (bloco "E-mail: aviso de novo lead")
+5. Mensagem de boas-vindas no WhatsApp em nome do David _(só é entregue com template aprovado pela Meta — ver abaixo)_
+6. _(pendente)_ Aviso por e-mail ao escritório via Resend (bloco "E-mail: aviso de novo lead")
 
-**Dependência crítica:** o fluxo só inicia com a conexão de WhatsApp "Comercialvihij" **conectada**. Desconectada, o evento aparece nos logs do webhook como `ignorado` ("Nenhuma conexão de WhatsApp foi resolvida") e **nenhuma negociação é criada**.
+**Dependências críticas:**
+
+- O fluxo precisa estar vinculado à conexão de WhatsApp ativa (hoje: API oficial `1526828448368230`, número +55 31 7338-6303). Sem conexão ativa ou sem vínculo, o evento aparece nos logs do webhook como `ignorado` e **nenhuma negociação é criada** (o contato é salvo, mas sem negociação).
+- Na API oficial, a primeira mensagem para quem nunca falou com o número só é entregue como **template aprovado pela Meta**. Enquanto não houver template, a negociação é criada normalmente, mas a mensagem fica como "Janela de 24h expirada".
+- Se houver leads `ignorado` nos logs, recuperar pelo **Importar (CSV)** do CRM, com `tipo = criar_negociacao`, funil Triagem / Novo Lead, `id_usuario = 17649` e `data_criacao` = data original do lead.
 
 ## 7. Duplicidade
 
-| Situação | Comportamento |
-|---|---|
-| Mesmo lead (mesmo `id`) | O site envia uma única vez por lead confirmado. Não reenviar o mesmo `id`. |
-| Mesma pessoa preenche de novo | Novo `id`, novo evento. O CRM identifica o contato pelo telefone (`whatsapp_e164`). |
-| Contato já tem negociação | "Criar negociação" **não** cria outra: reaproveita a existente. Os campos personalizados são sobrescritos com as respostas mais recentes e a mensagem de boas-vindas é enviada de novo. |
-| Telefone diferente, mesmo e-mail | Vira outro contato (a chave é o telefone). |
+| Situação                         | Comportamento                                                                                                                                                                           |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mesmo lead (mesmo `id`)          | O site envia uma única vez por lead confirmado. Não reenviar o mesmo `id`.                                                                                                              |
+| Mesma pessoa preenche de novo    | Novo `id`, novo evento. O CRM identifica o contato pelo telefone (`whatsapp_e164`).                                                                                                     |
+| Contato já tem negociação        | "Criar negociação" **não** cria outra: reaproveita a existente. Os campos personalizados são sobrescritos com as respostas mais recentes e a mensagem de boas-vindas é enviada de novo. |
+| Telefone diferente, mesmo e-mail | Vira outro contato (a chave é o telefone).                                                                                                                                              |
 
 ## 8. Erros e reenvio
 
