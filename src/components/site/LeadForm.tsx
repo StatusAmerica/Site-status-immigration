@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { CheckCircle2, ChevronRight, Loader2 } from "lucide-react";
 import { newId, submitLead } from "@/lib/dataStore";
+import { maskBrPhone } from "@/lib/phone";
 import { type LeadInput } from "@/lib/leadScoring";
 import { getAssignedVariantId, registerConversion } from "@/lib/abEngine";
 import { trackFormStart } from "@/lib/tracking";
@@ -42,12 +43,7 @@ const empty: LeadInput = {
   cidade: "", uf: "", renda: "", momento: "",
 };
 
-function maskPhone(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 11);
-  if (d.length <= 2) return d;
-  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
-  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
-}
+const maskPhone = maskBrPhone;
 
 export function LeadForm({ segmentId, defaultProfissao, onSubmitted, submitLabel }: LeadFormProps = {}) {
   const [step, setStep] = useState(0);

@@ -78,6 +78,24 @@ export function normalizeBrPhone(raw: string): NormalizedPhone | null {
   };
 }
 
+/**
+ * Máscara "(DD) NNNNN-NNNN" para o campo de WhatsApp. Antes de cortar em 11
+ * dígitos, tira o "00" e o DDI 55 que o autofill do navegador ("+55 31 9...")
+ * ou um número colado trazem; sem isso o 55 virava DDD e o último dígito sumia.
+ * Só remove o 55 com mais de 11 dígitos, então DDD 55 (RS) digitado continua.
+ */
+export function maskBrPhone(v: string): string {
+  let d = v.replace(/\D/g, "");
+  if (d.startsWith("00")) d = d.slice(2);
+  if (d.startsWith("55") && d.length > 11) d = d.slice(2);
+  d = d.slice(0, 11);
+  if (d.length <= 2) return d;
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  // fixo (10 dígitos): 4-4; celular (11): 5-4
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
 /** Conveniência: retorna apenas os dígitos com DDI, ou null. */
 export function toWaDigits(raw: string): string | null {
   return normalizeBrPhone(raw)?.digits ?? null;

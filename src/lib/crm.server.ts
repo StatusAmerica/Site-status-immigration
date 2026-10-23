@@ -2,6 +2,8 @@
 // o lead é gravado no D1. O payload mantém as MESMAS chaves que o site antigo mandava,
 // para o mapeamento que já existe no webhook continuar funcionando.
 
+import { normalizeBrPhone } from "./phone";
+
 const CRM_WEBHOOK_URL =
   "https://webhook.agendasistemacrm.com.br/api/v1/webhook-in/31Tr7r6Ausr2nCuOdZTFrZJJ";
 
@@ -16,10 +18,11 @@ const LABELS: Record<string, Record<string, string>> = {
 
 const label = (group: string, v: unknown) => (typeof v === "string" && LABELS[group][v]) || (v as string) || "";
 
+// (31) 99999-9999 e +55 31 99999-9999 -> 5531999999999. Número que não fecha como BR
+// (estrangeiro, incompleto) vai só com os dígitos, sem inventar DDI.
 function toE164BR(phone: unknown) {
-  const d = String(phone || "").replace(/\D/g, "");
-  if (!d) return "";
-  return d.length <= 11 ? `55${d}` : d; // (31) 99999-9999 -> 5531999999999
+  const raw = String(phone || "");
+  return normalizeBrPhone(raw)?.digits ?? raw.replace(/\D/g, "");
 }
 
 type Touch = { params?: Record<string, string | undefined>; referrer?: string; landing_page?: string };
