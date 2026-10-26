@@ -69,6 +69,7 @@ export function Hero() {
   const cta = useContent("hero.cta");
   const proof = useContent("hero.proof");
   const heroVideoUrl = useContent("hero.videoUrl");
+  const heroPosterUrl = useContent("hero.posterUrl");
   // Só renderiza o slot depois que o conteúdo foi resolvido: enquanto não
   // sabemos, o vídeo NÃO aparece (evita o flash do slot oculto).
   const showHeroVideo = useVisibleSlot("hero.videoHidden");
@@ -132,7 +133,12 @@ export function Hero() {
         {!heroVideoHidden && (
           <div className="relative mt-10 lg:mt-0 min-w-0">
             <div className="liquid-glass relative aspect-video w-full overflow-hidden rounded-2xl ring-1 ring-gold/10">
-              <VideoPlayer url={heroVideoUrl} title="Vídeo institucional Status Immigration Law Firm" />
+              <VideoPlayer
+                url={heroVideoUrl}
+                title="Vídeo institucional Status Immigration Law Firm"
+                facade
+                poster={heroPosterUrl}
+              />
             </div>
           </div>
         )}

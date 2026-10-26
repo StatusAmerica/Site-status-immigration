@@ -40,14 +40,14 @@ export const defaultContent = {
   // COMPLIANCE: números removidos até validação documental (ver src/config/credentials.ts).
   "hero.proof":
     "Licensed in NY and AZ · Federal immigration practice only",
-  "hero.videoUrl": "",
-  "hero.posterUrl": "",
+  "hero.videoUrl": "/videos/hero-home.mp4",
+  "hero.posterUrl": "/videos/hero-home-poster.jpg",
   "hero.videoHidden": "",
 
   "institutional.eyebrow": "VÍDEO INSTITUCIONAL",
   "institutional.title": "Conheça a Status Immigration Law Firm.",
   "institutional.lead": "Em 90 segundos, entenda quem somos, como trabalhamos e por que centenas de famílias brasileiras confiam a construção do seu Green Card à nossa equipe.",
-  "institutional.videoUrl": "",
+  "institutional.videoUrl": "/videos/institucional-opcoes.mp4",
   "institutional.videoHidden": "",
 
 
@@ -114,8 +114,8 @@ export const defaultContent = {
   // NUNCA compartilhar a mesma imagem entre vistos, nem usar IA genérica.
   "visa.eb2-niw.heroSubtitle":
     "O Green Card por mérito profissional, sem empresa patrocinadora e sem oferta de emprego.",
-  "visa.eb2-niw.heroVideoUrl": "",
-  "visa.eb2-niw.heroVideoThumb": "",
+  "visa.eb2-niw.heroVideoUrl": "/videos/visto-eb2-niw.mp4",
+  "visa.eb2-niw.heroVideoThumb": "/videos/visto-eb2-niw-poster.jpg",
   "visa.eb2-niw.heroVideoHidden": "",
   // EB-2 NIW: profissional brasileiro 40+ consolidado com toque
   // de família ao fundo em contexto americano aspiracional. Substituir por
@@ -129,8 +129,8 @@ export const defaultContent = {
   "visa.eb2-niw.definitionImage": visaDefinitionEb2Niw,
   "visa.eb1.heroSubtitle":
     "O Green Card para profissionais com habilidade extraordinária comprovada, sem patrocinador, sem PERM.",
-  "visa.eb1.heroVideoUrl": "",
-  "visa.eb1.heroVideoThumb": "",
+  "visa.eb1.heroVideoUrl": "/videos/visto-eb1.mp4",
+  "visa.eb1.heroVideoThumb": "/videos/visto-eb1-poster.jpg",
   "visa.eb1.heroVideoHidden": "",
   // EB-1 (habilidade extraordinária): figura de excelência/liderança em
   // ambiente de alto padrão (escritório executivo, laboratório, palco).
@@ -152,8 +152,8 @@ export const defaultContent = {
   "visa.eb3.definitionImage": visaDefinitionEb3,
   "visa.o1.heroSubtitle":
     "Visto temporário para habilidade extraordinária. Admite empregador ou agente peticionário — sem exigência de oferta permanente.",
-  "visa.o1.heroVideoUrl": "",
-  "visa.o1.heroVideoThumb": "",
+  "visa.o1.heroVideoUrl": "/videos/visto-o1.mp4",
+  "visa.o1.heroVideoThumb": "/videos/visto-o1-poster.jpg",
   "visa.o1.heroVideoHidden": "",
   "visa.o1.heroImage": visaHeroEb1,
   "visa.o1.definitionImage": visaDefinitionEb1,
