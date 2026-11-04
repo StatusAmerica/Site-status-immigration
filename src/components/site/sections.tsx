@@ -35,7 +35,7 @@ import {
   BBB_LABEL,
   BBB_PENDING,
   EIN,
-  CNPJ,
+  NY_BAR,
 } from "@/config/credentials";
 import { SectionHead } from "./SectionHead";
 import { VideoPlayer } from "./VideoPlayer";
@@ -44,7 +44,7 @@ import { ProcessIconStrip } from "./visuals/ProcessIconStrip";
 import { LeadFormProgressive } from "./LeadFormProgressive";
 import { useLocation } from "@tanstack/react-router";
 import { FlagsBRUS, FlagBR, FlagUS } from "./flags";
-import { PatchBBB, PatchGoogle, PatchEIN, PatchCNPJ } from "./credentialPatches";
+import { PatchBBB, PatchGoogle, PatchEIN } from "./credentialPatches";
 
 import { FlagsBRUSDual } from "./visuals/DualFlagIcons";
 import { CardRail } from "./CardRail";
@@ -166,7 +166,7 @@ export function CompanyIntroduction() {
       icon: Building2,
       eyebrow: "QUEM SOMOS",
       title: "Advocacia de imigração, dos EUA para o Brasil.",
-      text: "A Status Immigration Law Firm é um escritório de advocacia especializado exclusivamente em imigração federal, com sede em Orlando e atendimento em português no Brasil e nos Estados Unidos.",
+      text: "A Status Immigration Law Firm é um escritório de advocacia especializado exclusivamente em imigração federal, com escritório em Washington, DC e atendimento em português no Brasil e nos Estados Unidos.",
       className: "md:col-span-2",
     },
     {
@@ -560,8 +560,18 @@ export function WhyUs() {
     .filter((claim) => !claim.pending)
     .map((claim) => ({ value: claim.value, label: claim.label.toUpperCase() }));
   const items = [
-     { icon: MapPin, title: "Sede própria em Orlando, Flórida", meta: `EIN ${EIN}` },
-     { icon: Users, title: "Filial no Brasil em Barueri/SP", meta: `CNPJ ${CNPJ}` },
+     {
+       icon: Landmark,
+       title: "Escritório em Washington, DC",
+       meta: `1500 K Street NW, 2nd Floor · EIN ${EIN}`,
+       desc: "Atendimento somente com hora marcada.",
+     },
+     {
+       icon: Scale,
+       title: "Advogada: Meagan Zabadal",
+       meta: `Registro de advogada em Nova York nº ${NY_BAR}`,
+       desc: "Licensed in NY and AZ · Federal immigration practice only.",
+     },
      ...(!BBB_PENDING ? [{ icon: ShieldCheck, title: BBB_LABEL, desc: "Better Business Bureau: órgão privado dos EUA/Canadá que avalia a ética e confiabilidade das empresas." }] : []),
      ...(!CLAIM_AVALIACOES.pending ? [{ icon: Star, title: `${CLAIM_AVALIACOES.value} ${CLAIM_AVALIACOES.label} no Google e Facebook` }] : []),
   ];
@@ -962,13 +972,12 @@ function PatchIcon({ label }: { label: string }) {
   if (l.includes("bbb")) return <PatchBBB />;
   if (l.includes("google")) return <PatchGoogle />;
   if (l.includes("ein")) return <PatchEIN />;
-  if (l.includes("cnpj")) return <PatchCNPJ />;
 
   let Icon: typeof ShieldCheck = ShieldCheck;
   let tint = "text-gold";
-  if (l.includes("aila")) { Icon = Scale; tint = "text-oxblood"; }
+  if (l.includes("aila") || l.includes("bar") || l.includes("advogad")) { Icon = Scale; tint = "text-oxblood"; }
   else if (l.includes("uscis") || l.includes("document")) { Icon = Stamp; tint = "text-gold"; }
-  else if (l.includes("orlando") || l.includes("sede")) { Icon = Landmark; tint = "text-ink-text"; }
+  else if (l.includes("orlando") || l.includes("washington") || l.includes("sede")) { Icon = Landmark; tint = "text-ink-text"; }
   else if (l.includes("parceiro")) { Icon = Users; tint = "text-oxblood"; }
   return (
     <span className={`inline-grid place-items-center h-16 w-16 rounded-full border border-gold/50 bg-white shadow-soft ${tint}`}>
@@ -1076,7 +1085,7 @@ export function FAQ() {
   const faqs = [
     {
       q: "A Status Immigration Law Firm é um escritório de advocacia?",
-      a: `Sim. A prática jurídica é conduzida por Meagan Zabadal, advogada licenciada em Nova York e Arizona, exclusivamente em matéria federal de imigração. O escritório mantém sede em Orlando e operação de atendimento no Brasil. EIN ${EIN} · CNPJ ${CNPJ}.`,
+      a: `Sim. A prática jurídica é conduzida por Meagan Zabadal (Registro de advogada em Nova York nº ${NY_BAR} · AZ Bar 040403), advogada licenciada em Nova York e Arizona, exclusivamente em matéria federal de imigração. O escritório mantém escritório em Washington, DC (atendimento somente com hora marcada), com atendimento em português. EIN ${EIN}.`,
     },
     {
       q: "Qual a experiência de vocês?",

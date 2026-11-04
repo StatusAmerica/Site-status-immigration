@@ -52,7 +52,7 @@ export const CLAIM_AVALIACOES: PendingClaim = {
  * numéricas de tempo ("duas décadas", "25 anos") sem lastro.
  */
 export const TRAJECTORY_STATEMENT =
-  "Equipe com trajetória consolidada em processos de imigração, com sede própria em Orlando desde 2022.";
+  "Equipe com trajetória consolidada em processos de imigração federal e escritório em Washington, DC.";
 
 // ==== Google ======================================================
 // Não cravar "5,0" nem "Nota 5,0": a média muda no dia em que
@@ -76,4 +76,4 @@ export const BBB_PENDING = true;
 // ==== Identificadores públicos (verificáveis) =====================
 // Não são "claims"; são registros públicos confirmáveis.
 export const EIN = "42-4745152";
-export const CNPJ = "62.917.376/0001-21";
+export const NY_BAR = "5797303";

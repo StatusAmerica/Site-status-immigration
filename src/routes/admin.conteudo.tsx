@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageHeader, SectionCard } from "@/components/admin/ui";
 import { get, set, list } from "@/lib/dataStore";
-import { defaultContent } from "@/lib/siteContent";
+import { defaultContent, isLegacyBrOfficeValue } from "@/lib/siteContent";
 import { broadcast } from "@/lib/admin/settings";
 import { parseVideoUrl } from "@/lib/videoEmbed";
 import { ImageUploader } from "@/components/admin/ImageUploader";
@@ -167,7 +167,14 @@ function ContentPage() {
       const rows = await list<{ value?: string; id: string }>("site_content");
       const dbMap: Record<string, string> = {};
       for (const r of rows) {
-        if (typeof r.value === "string") dbMap[r.id] = r.value;
+        if (
+          typeof r.value === "string" &&
+          !r.id.startsWith("contato.br.") &&
+          !r.id.startsWith("contato.usa.") &&
+          !isLegacyBrOfficeValue(r.value, r.id)
+        ) {
+          dbMap[r.id] = r.value;
+        }
       }
       const map: Record<string, string> = {};
       for (const k of Object.keys(defaultContent) as (keyof typeof defaultContent)[]) {

@@ -43,8 +43,7 @@ function ConfigPage() {
 
         <SectionCard title="Dados jurídicos & contato">
           <div className="space-y-3">
-            <Field label="Endereço (Orlando)"><Input value={s.endereco_orlando} onChange={(e) => upd("endereco_orlando", e.target.value)} /></Field>
-            <Field label="CNPJ"><Input value={s.cnpj} onChange={(e) => upd("cnpj", e.target.value)} /></Field>
+            <Field label="Endereço (Washington, DC)"><Input value={s.endereco_dc} onChange={(e) => upd("endereco_dc", e.target.value)} /></Field>
             <Field label="E-mail"><Input value={s.email} onChange={(e) => upd("email", e.target.value)} /></Field>
             <Field label="Telefone BR"><Input value={s.phone_br} onChange={(e) => upd("phone_br", e.target.value)} /></Field>
             <Field label="Telefone EUA"><Input value={s.phone_us} onChange={(e) => upd("phone_us", e.target.value)} /></Field>

@@ -41,7 +41,7 @@ const QA: { q: string; a: string }[] = [
   {
     q: "O que é a Status Immigration Law Firm?",
     a:
-      "A Status Immigration Law Firm é um escritório de advocacia de imigração com sede em Orlando e atendimento em português a brasileiros. Atua do enquadramento jurídico à construção do dossiê e ao acompanhamento do caso, com foco em EB-1, EB-2 NIW e O-1.",
+      "A Status Immigration Law Firm é um escritório de advocacia de imigração com escritório em Washington, DC e atendimento em português a brasileiros. Atua do enquadramento jurídico à construção do dossiê e ao acompanhamento do caso, com foco em EB-1, EB-2 NIW e O-1.",
   },
   {
     q: "Quem atende?",
@@ -49,8 +49,8 @@ const QA: { q: string; a: string }[] = [
       "Profissionais brasileiros qualificados que pretendem migrar legalmente para os EUA via Green Card baseado em emprego. Perfis mais comuns: médicos, engenheiros, empresários, pesquisadores e profissionais consolidados de áreas estratégicas.",
   },
   {
-    q: "Onde fica a sede?",
-    a: "Orlando, Flórida, Estados Unidos. Atendimento em português a clientes no Brasil e nos EUA.",
+    q: "Onde fica o escritório?",
+    a: "1500 K Street NW, 2nd Floor, Washington, DC 20005, United States (atendimento somente com hora marcada). Atendimento em português a clientes no Brasil e nos EUA.",
   },
   {
     q: "Qual é o serviço principal?",
@@ -65,7 +65,7 @@ const QA: { q: string; a: string }[] = [
   {
     q: "Quais são os diferenciais?",
     a:
-      "Sede própria em Orlando, equipe dedicada por especialidade, foco em casos de mobilidade migratória qualificada para o público brasileiro e suporte que se estende além do processo (documentação, tradução, mudança, bancos, escolas).",
+      "Presença nos Estados Unidos (Washington, DC), equipe dedicada por especialidade, foco em casos de mobilidade migratória qualificada para o público brasileiro e suporte que se estende além do processo (documentação, tradução, mudança, bancos, escolas).",
   },
   {
     q: "Quanto custa uma análise?",
@@ -79,7 +79,7 @@ const QA: { q: string; a: string }[] = [
   {
     q: "Como entrar em contato?",
     a:
-      "Pelo formulário de triagem inicial em https://statusimmigrationlaw.com.br/avaliacao ou pelo canal de e-mail informado no site (contato@statusnaamerica.com).",
+      "Pelo formulário de triagem inicial em https://statusimmigrationlaw.com.br/avaliacao, telefone/WhatsApp +55 31 9 7338-6310 ou pelo e-mail rogerio@statusimmigrationlaw.com.",
   },
 ];
 

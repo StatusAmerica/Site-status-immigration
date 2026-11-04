@@ -25,6 +25,7 @@ import {
 import { LegalNoteInline } from "@/components/legal/LegalDisclaimer";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { FlagUS } from "@/components/site/flags";
 import { PartnersBadges } from "@/components/site/sections";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,10 +46,10 @@ export const Route = createFileRoute("/contato")({
       {
         title: "Contato | Status Immigration Law Firm",
         description:
-          "Fale com a Status Immigration Law Firm. WhatsApp, e-mail e endereços da matriz em Orlando e filial no Brasil. Levantamento inicial de informações para imigração legal aos EUA.",
+          "Fale com a Status Immigration Law Firm. Telefone, WhatsApp, e-mail e endereço em Washington, DC. Levantamento inicial de informações para imigração legal aos EUA.",
         ogTitle: "Contato | Status Immigration Law Firm",
         ogDescription:
-          "WhatsApp, e-mail e endereços. Matriz em Orlando/FL e filial em Barueri/SP.",
+          "Telefone, WhatsApp, e-mail e escritório em Washington, DC.",
         canonical: "/contato",
       },
       loaderData,
@@ -66,32 +67,24 @@ export const Route = createFileRoute("/contato")({
             description: "Escritório de advocacia especializado em imigração federal. Licensed in NY and AZ.",
             url: "https://statusimmigrationlaw.com.br",
             sameAs: [
-              "https://instagram.com/status_america",
-              "https://facebook.com/statusnaamerica",
+              "https://www.instagram.com/statusimmigrationbr/",
+              "https://www.facebook.com/StatusAdvocaciaBrasil/",
               "https://youtube.com/@status.naamerica",
             ],
-            address: [
-              {
-                "@type": "PostalAddress",
-                streetAddress: "7575 KingsPointe Pkwy #4",
-                addressLocality: "Orlando",
-                addressRegion: "FL",
-                postalCode: "32819",
-                addressCountry: "US",
-              },
-              {
-                "@type": "PostalAddress",
-                streetAddress: "Alameda Araguaia 2104",
-                addressLocality: "Barueri",
-                addressRegion: "SP",
-                postalCode: "06455-000",
-                addressCountry: "BR",
-              },
-            ],
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: "1500 K Street NW, 2nd Floor",
+              addressLocality: "Washington",
+              addressRegion: "DC",
+              postalCode: "20005",
+              addressCountry: "US",
+            },
+            email: "rogerio@statusimmigrationlaw.com",
             contactPoint: [
               {
                 "@type": "ContactPoint",
-                telephone: "+1-689-251-0985",
+                telephone: "+55-31-97338-6310",
+                email: "rogerio@statusimmigrationlaw.com",
                 contactType: "customer service",
                 areaServed: ["US", "BR"],
                 availableLanguage: ["Portuguese", "English"],
@@ -180,23 +173,18 @@ function CanaisDiretos({
 }: {
   settings: SiteSettings;
 }) {
-  const usaTitle = useContent("contato.usa.title");
-  const usaCompany = useContent("contato.usa.company");
-  const usaAddress = useContent("contato.usa.address");
-  const usaPhone1 = useContent("contato.usa.phone1");
-  const usaPhone2 = useContent("contato.usa.phone2");
-  const usaEin = useContent("contato.usa.ein");
-
-  const brTitle = useContent("contato.br.title");
-  const brCompany = useContent("contato.br.company");
-  const brAddress = useContent("contato.br.address");
-  const brCnpj = useContent("contato.br.cnpj");
-  const brPhone = useContent("contato.br.phone");
+  const dcTitle = useContent("contato.dc.title");
+  const dcCompany = useContent("contato.dc.company");
+  const dcAddress = useContent("contato.dc.address");
+  const dcPhone = useContent("contato.dc.phone");
+  const dcEmail = useContent("contato.dc.email");
+  const dcHours = useContent("contato.dc.hours");
+  const dcAttorney = useContent("contato.dc.attorney");
 
   const expansaoTitle = useContent("contato.expansao.title");
   const expansaoText = useContent("contato.expansao.text");
 
-  const email = settings.email;
+  const email = settings.email || "rogerio@statusimmigrationlaw.com";
 
   return (
     <section className="section-champagne section-pad border-b border-gold/15">
@@ -228,46 +216,43 @@ function CanaisDiretos({
             />
           )}
 
-          {/* Matriz EUA */}
+          {/* Escritório Washington, DC */}
           <div className="compact-info-card block">
             <span aria-hidden className="block h-[2px] w-10 bg-gold mb-4" />
-            <div className="font-mono-label text-oxblood text-xs">{usaTitle.toUpperCase()}</div>
-            <div className="mt-1 font-display text-lg text-ink-text">{usaCompany}</div>
+            <div className="font-mono-label text-oxblood text-xs flex items-center gap-2">
+              <FlagUS style={{ width: 16, height: 11 }} />
+              {dcTitle.toUpperCase()}
+            </div>
+            <div className="mt-1 font-display text-lg text-ink-text">{dcCompany}</div>
             <div className="mt-3 flex items-start gap-2 text-sm text-ink-text/80">
               <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-gold" />
-              <span>{usaAddress}</span>
+              <span>{dcAddress}</span>
             </div>
-            <div className="mt-2 flex items-center gap-2 text-sm text-ink-text/80">
+            <div className="mt-2.5 flex items-center gap-2 text-sm text-ink-text/80">
               <Phone className="h-4 w-4 shrink-0 text-gold" />
-              <a href={`tel:${usaPhone1.replace(/\D/g, "")}`} className="hover:text-gold">
-                {usaPhone1}
-              </a>
+              <span>
+                Telefone e WhatsApp:{" "}
+                <a
+                  href={`https://wa.me/${dcPhone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gold"
+                >
+                  {dcPhone}
+                </a>
+              </span>
             </div>
-            <div className="mt-1 flex items-center gap-2 text-sm text-ink-text/80">
-              <Phone className="h-4 w-4 shrink-0 text-gold" />
-              <a href={`tel:${usaPhone2.replace(/\D/g, "")}`} className="hover:text-gold">
-                {usaPhone2}
-              </a>
+            <div className="mt-1.5 flex items-center gap-2 text-sm text-ink-text/80">
+              <Mail className="h-4 w-4 shrink-0 text-gold" />
+              <span>
+                E-mail:{" "}
+                <a href={`mailto:${dcEmail}`} className="hover:text-gold break-all">
+                  {dcEmail}
+                </a>
+              </span>
             </div>
-            <div className="mt-3 font-mono-label text-[11px] text-ink-text/60">{usaEin}</div>
-          </div>
-
-          {/* Filial Brasil */}
-          <div className="compact-info-card block">
-            <span aria-hidden className="block h-[2px] w-10 bg-gold mb-4" />
-            <div className="font-mono-label text-oxblood text-xs">{brTitle.toUpperCase()}</div>
-            <div className="mt-1 font-display text-lg text-ink-text">{brCompany}</div>
-            <div className="mt-3 flex items-start gap-2 text-sm text-ink-text/80">
-              <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-gold" />
-              <span>{brAddress}</span>
-            </div>
-            <div className="mt-2 flex items-center gap-2 text-sm text-ink-text/80">
-              <Phone className="h-4 w-4 shrink-0 text-gold" />
-              <a href={`tel:${brPhone.replace(/\D/g, "")}`} className="hover:text-gold">
-                {brPhone}
-              </a>
-            </div>
-            <div className="mt-3 font-mono-label text-[11px] text-ink-text/60">{brCnpj}</div>
+            <div className="mt-3 text-xs text-ink-text/75">{dcHours}</div>
+            <div className="mt-1.5 font-mono-label text-[11px] text-ink-text/65">{dcAttorney}</div>
           </div>
 
           {/* Expansão */}
@@ -283,7 +268,7 @@ function CanaisDiretos({
           </div>
 
           {/* Redes sociais */}
-          <div className="compact-info-card block lg:col-span-2">
+          <div className="compact-info-card block md:col-span-2 lg:col-span-3">
             <span aria-hidden className="block h-[2px] w-10 bg-gold mb-4" />
             <div className="font-mono-label text-oxblood text-xs">REDES SOCIAIS</div>
             <div className="mt-1 font-display text-lg text-ink-text">
@@ -294,7 +279,11 @@ function CanaisDiretos({
                 <SocialPill
                   href={settings.instagram_url}
                   icon={<Instagram className="h-4 w-4" />}
-                  label="@status_america"
+                  label={
+                    settings.instagram_url
+                      ? `@${settings.instagram_url.replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/\/.*$/, "") || "statusimmigrationbr"}`
+                      : "@statusimmigrationbr"
+                  }
                 />
               )}
               {settings.youtube_url && (
@@ -308,7 +297,11 @@ function CanaisDiretos({
                 <SocialPill
                   href={settings.facebook_url}
                   icon={<Facebook className="h-4 w-4" />}
-                  label="/statusnaamerica"
+                  label={
+                    settings.facebook_url
+                      ? `/${settings.facebook_url.replace(/^https?:\/\/(www\.)?facebook\.com\//i, "").replace(/\/.*$/, "") || "StatusAdvocaciaBrasil"}`
+                      : "/StatusAdvocaciaBrasil"
+                  }
                 />
               )}
             </div>
@@ -630,7 +623,7 @@ function Field({
 /* --------------------------- Mapa discreto ------------------------------ */
 
 function MapaDiscreto() {
-  const address = "7575 KingsPointe Pkwy #4, Orlando, FL 32819";
+  const address = "1500 K Street NW, 2nd Floor, Washington, DC 20005, United States";
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     address
   )}`;
@@ -638,15 +631,17 @@ function MapaDiscreto() {
     <section className="section-champagne py-10 border-b border-gold/15">
       <div className="container-x flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <div className="font-mono-label text-oxblood text-xs">SEDE ORLANDO</div>
+          <div className="font-mono-label text-oxblood text-xs flex items-center gap-2">
+            <FlagUS style={{ width: 16, height: 11 }} />
+            ESCRITÓRIO · WASHINGTON, DC
+          </div>
           <div className="mt-1 font-display text-lg text-ink-text">{address}</div>
         </div>
-        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="block sm:inline-block">
+        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="block sm:inline-block shrink-0">
           <Button variant="outline" className="btn-label w-full border-gold/50 sm:w-auto">
             <MapPin className="mr-2 h-4 w-4" /> Ver no Google Maps
           </Button>
         </a>
-
       </div>
     </section>
   );

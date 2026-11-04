@@ -2,7 +2,7 @@
  * Footer, "rodapé de documento oficial".
  *
  * Prompt 5: injeção de dados reais.
- *   - Matriz Orlando (EIN) e filial Brasil (CNPJ).
+ *   - Escritório em Washington, DC.
  *   - Expansão Portugal/Dubai marcadas "em breve".
  *   - Redes sociais reais. Campos ocultos quando vazios (ex.: e-mail).
  *   - Assinatura institucional de licenciamento.
@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import { getSiteSettings, type SiteSettings } from "@/lib/admin/settings";
-import { FlagBR, FlagUS } from "./flags";
+import { FlagUS } from "./flags";
 import { LegalDisclaimer } from "@/components/legal/LegalDisclaimer";
 import { BrandLogo } from "@/components/site/BrandLogo";
 
@@ -21,8 +21,8 @@ export function Footer() {
   useEffect(() => { getSiteSettings().then(setS); }, []);
 
   const email = s?.email?.trim() || "";
-  const fb = s?.facebook_url || "https://facebook.com/statusnaamerica";
-  const ig = s?.instagram_url || "https://instagram.com/status_america";
+  const fb = s?.facebook_url || "https://www.facebook.com/StatusAdvocaciaBrasil/";
+  const ig = s?.instagram_url || "https://www.instagram.com/statusimmigrationbr/";
   const yt = s?.youtube_url || "https://youtube.com/@status.naamerica";
 
   return (
@@ -66,49 +66,53 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Matriz EUA */}
-        <div className="md:col-span-4">
+        {/* Escritório Washington, DC */}
+        <div className="md:col-span-5">
           <h4 className="font-mono-label text-gold/80 flex items-center gap-2">
             <FlagUS style={{ width: 18, height: 13 }} />
-            Matriz · Estados Unidos
+            Escritório · Washington, DC
           </h4>
           <div className="mt-4 space-y-1.5 text-sm text-foreground/75 leading-relaxed">
             <p className="font-display text-foreground">Status Immigration Law Firm PLLC</p>
-            <p className="text-xs text-gold">Licensed in NY and AZ · Federal immigration practice only</p>
-            <p>7575 KingsPointe Pkwy #4</p>
-            <p>Orlando, FL 32819</p>
-            <p className="font-mono text-xs text-foreground/80 mt-2">EIN 42-4745152</p>
-            <p className="font-mono text-xs text-foreground/70">Meagan Zabadal · NY Bar 5797303 · AZ Bar 040403</p>
-            <p className="mt-3">+1 689 251-0985</p>
-            <p>+1 689 220-9691</p>
-          </div>
-        </div>
-
-        {/* Filial Brasil */}
-        <div className="md:col-span-4">
-          <h4 className="font-mono-label text-gold/80 flex items-center gap-2">
-            <FlagBR style={{ width: 18, height: 13 }} />
-            Filial · Brasil
-          </h4>
-          <div className="mt-4 space-y-1.5 text-sm text-foreground/75 leading-relaxed">
-            <p className="font-display text-foreground">Alphaville. CEA Corporate</p>
-            <p>Alameda Araguaia, 2104</p>
-            <p>Barueri/SP · CEP 06455-000</p>
-            <p className="font-mono text-xs text-foreground/80 mt-2">CNPJ 62.917.376/0001-21</p>
-            <p className="mt-3">Tel.: +1 689 220-9714</p>
-            {email && (
+            <p>1500 K Street NW, 2nd Floor, Washington, DC 20005, United States</p>
+            <p className="pt-1.5">
+              Telefone e WhatsApp:{" "}
+              <a
+                className="hover:text-gold"
+                href="https://wa.me/5531973386310"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                +55 31 9 7338-6310
+              </a>
+            </p>
+            <p>
+              E-mail:{" "}
+              <a className="hover:text-gold break-all" href="mailto:rogerio@statusimmigrationlaw.com">
+                rogerio@statusimmigrationlaw.com
+              </a>
+            </p>
+            <p className="pt-1 text-xs text-foreground/70">Atendimento somente com hora marcada.</p>
+            <p className="font-mono text-xs text-foreground/75">
+              Advogada: Meagan Zabadal · Registro de advogada em Nova York nº 5797303
+            </p>
+            {email && email.toLowerCase() !== "rogerio@statusimmigrationlaw.com" && (
               <p>
                 <a className="hover:text-gold" href={`mailto:${email}`}>{email}</a>
               </p>
             )}
           </div>
+        </div>
 
-          <div className="mt-6 pt-4 border-t border-gold/15">
-            <p className="font-mono-label text-foreground/80">EXPANSÃO</p>
-            <p className="mt-2 text-sm text-foreground/70">
-              Portugal · Dubai <span className="font-mono-label text-gold/70 ml-1">EM BREVE</span>
-            </p>
-          </div>
+        {/* Expansão */}
+        <div className="md:col-span-3">
+          <p className="font-mono-label text-gold/80">EXPANSÃO</p>
+          <p className="mt-4 text-sm text-foreground/75 leading-relaxed">
+            Portugal · Dubai <span className="font-mono-label text-gold/70 ml-1">EM BREVE</span>
+          </p>
+          <p className="mt-2 text-xs text-foreground/60 leading-relaxed">
+            Novas frentes de atendimento para brasileiros no exterior.
+          </p>
         </div>
       </div>
 

@@ -63,7 +63,7 @@ export const defaultContent = {
   "why.title": "Por que a Status Immigration Law Firm",
   // COMPLIANCE: "duas décadas" removido — sem lastro documental (FTC/FDUTPA).
   "why.lead":
-    "Equipe com trajetória consolidada em processos de imigração, com sede própria em Orlando desde 2022.",
+    "Equipe com trajetória consolidada em processos de imigração federal e escritório em Washington, DC.",
 
   "cta.title": "Entenda quais documentos costumam ser exigidos pelo USCIS em cada categoria.",
   "cta.subtitle":
@@ -85,7 +85,7 @@ export const defaultContent = {
   "partners.slot2.url": "",
   "partners.slot3.label": "EIN 42-4745152",
   "partners.slot3.url": "",
-  "partners.slot4.label": "CNPJ 62.917.376/0001-21",
+  "partners.slot4.label": "NY Bar nº 5797303",
   "partners.slot4.url": "",
 
   // ==== Depoimentos em vídeo + estudos de caso =====================
@@ -104,7 +104,7 @@ export const defaultContent = {
   "testimonials.secondaryRole": "Engenheiro / Empresário",
   "testimonials.secondaryVideoUrl": "",
   "testimonials.googleReviewsUrl":
-    "https://www.google.com/search?q=Status+na+Am%C3%A9rica+Orlando+reviews",
+    "https://www.google.com/search?q=Status+Immigration+Law+Firm+reviews",
 
   // ==== Hero das páginas de visto (subtítulo enxuto + vídeo por página) ====
   // Cada página de visto lê seu próprio vídeo aqui; vazio → placeholder.
@@ -164,17 +164,13 @@ export const defaultContent = {
   "contato.title": "Vamos conversar sobre a sua documentação.",
   "contato.subtitle":
     "Tire suas dúvidas com nossa equipe ou faça seu levantamento inicial de informações.",
-  "contato.usa.title": "Matriz. Estados Unidos",
-  "contato.usa.company": "Status Immigration Law Firm PLLC",
-  "contato.usa.address": "7575 KingsPointe Pkwy #4, Orlando, FL 32819",
-  "contato.usa.phone1": "+1 689 251-0985",
-  "contato.usa.phone2": "+1 689 220-9691",
-  "contato.usa.ein": "EIN 42-4745152",
-  "contato.br.title": "Filial. Brasil",
-  "contato.br.company": "Alphaville · CEA Corporate",
-  "contato.br.address": "Alameda Araguaia 2104, Barueri/SP · CEP 06455-000",
-  "contato.br.cnpj": "CNPJ 62.917.376/0001-21",
-  "contato.br.phone": "+1 689 220-9714",
+  "contato.dc.title": "Escritório · Washington, DC",
+  "contato.dc.company": "Status Immigration Law Firm PLLC",
+  "contato.dc.address": "1500 K Street NW, 2nd Floor, Washington, DC 20005, United States",
+  "contato.dc.phone": "+55 31 9 7338-6310",
+  "contato.dc.email": "rogerio@statusimmigrationlaw.com",
+  "contato.dc.hours": "Atendimento somente com hora marcada.",
+  "contato.dc.attorney": "Advogada: Meagan Zabadal · Registro de advogada em Nova York nº 5797303",
   "contato.expansao.title": "Expansão internacional",
   "contato.expansao.text": "Portugal e Dubai · em breve.",
   "contato.form.title": "Deixe uma mensagem",
@@ -184,22 +180,22 @@ export const defaultContent = {
 
   // ==== Página Sobre ==============================================
   "sobre.hero.eyebrow": "QUEM SOMOS",
-  "sobre.hero.title": "Status Immigration Law Firm. De Orlando para o Brasil.",
+  "sobre.hero.title": "Status Immigration Law Firm. Dos Estados Unidos para o Brasil.",
   // COMPLIANCE: "duas décadas" removido — sem lastro documental.
   "sobre.hero.subtitle":
-    "Escritório de advocacia especializado exclusivamente em imigração federal, com sede em Orlando e atendimento em português.",
+    "Escritório de advocacia especializado exclusivamente em imigração federal, com escritório em Washington, DC e atendimento em português.",
   "sobre.hero.image": "",
 
   "sobre.historia.eyebrow": "NOSSA HISTÓRIA",
   "sobre.historia.title": "Uma estrutura jurídica dedicada exclusivamente à imigração.",
   "sobre.historia.body":
-    "A Status Immigration Law Firm reúne a experiência da operação que a antecedeu em uma nova estrutura de advocacia de imigração. Com sede em Orlando, atuação jurídica liderada por Meagan Zabadal e atendimento em português, o escritório acompanha profissionais e famílias do enquadramento do caso à decisão, com clareza sobre limites, riscos e próximos passos.",
+    "A Status Immigration Law Firm reúne a experiência da operação que a antecedeu em uma nova estrutura de advocacia de imigração. Com escritório em Washington, DC, atuação jurídica liderada por Meagan Zabadal e atendimento em português, o escritório acompanha profissionais e famílias do enquadramento do caso à decisão, com clareza sobre limites, riscos e próximos passos.",
   "sobre.historia.image": "",
 
   "sobre.diferencial.eyebrow": "NOSSO DIFERENCIAL",
   "sobre.diferencial.title": "Estamos fisicamente nos Estados Unidos.",
   "sobre.diferencial.lead":
-    "Diferente de quem opera apenas à distância, a Status tem sede em Orlando. Acompanhamos o cliente antes, durante e depois da chegada.",
+    "Diferente de quem opera apenas à distância, a Status tem presença nos Estados Unidos, com escritório em Washington, DC. Acompanhamos o cliente antes, durante e depois da chegada.",
   "sobre.diferencial.p1.title": "Chegada aos EUA",
   "sobre.diferencial.p1.text": "Recepção, orientação inicial e conexão com a rede local de suporte.",
   "sobre.diferencial.p2.title": "Bancos e documentação",
@@ -275,6 +271,13 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
+const LEGACY_OFFICE_RE = /(?:\bcnpj\b|62\.917\.376|alameda araguaia|barueri|alphaville|06455-000|kingspointe|32819|\borlando\b)/i;
+
+export function isLegacyBrOfficeValue(val: string | undefined, key?: string): boolean {
+  if (key && /Url$/i.test(key)) return false;
+  return typeof val === "string" && LEGACY_OFFICE_RE.test(val);
+}
+
 async function loadContent(): Promise<ContentMap> {
   if (contentCache) return contentCache;
   if (contentPromise) return contentPromise;
@@ -283,7 +286,14 @@ async function loadContent(): Promise<ContentMap> {
     try {
       const rows = await list<{ value?: string }>("site_content");
       for (const row of rows) {
-        if (row?.value) map[row.id] = row.value;
+        if (
+          row?.value &&
+          !row.id.startsWith("contato.br.") &&
+          !row.id.startsWith("contato.usa.") &&
+          !isLegacyBrOfficeValue(row.value, row.id)
+        ) {
+          map[row.id] = row.value;
+        }
       }
     } catch { /* mantém defaults */ }
     contentCache = map;

@@ -42,14 +42,14 @@ function PrivacidadePage() {
             <p className="mt-3">
               Esta política se aplica ao site <strong>statusimmigrationlaw.com.br</strong>{" "}
               e demais domínios operados por <strong>Status Immigration Law Firm PLLC</strong>{" "}
-              (EIN 42-4745152), com sede em 7575 KingsPointe Pkwy #4, Orlando, FL
-              32819, EUA, e por sua filial no Brasil <strong>Status Immigration Law Firm</strong>{" "}
-              (CNPJ 62.917.376/0001-21), em Alameda Araguaia, 2104, Barueri/SP.
+              (EIN 42-4745152), com escritório em 1500 K Street NW, 2nd Floor,
+              Washington, DC 20005, United States (atendimento somente com hora marcada).
             </p>
             <p className="mt-3">
               A Status Immigration Law Firm é um escritório de advocacia especializado em
-              imigração federal. A prática jurídica é conduzida por advogada licenciada em
-              Nova York e Arizona. <em>Federal immigration practice only.</em>
+              imigração federal. A prática jurídica é conduzida pela advogada Meagan Zabadal
+              (Registro de advogada em Nova York nº 5797303; licenciada em Nova York e Arizona).{" "}
+              <em>Federal immigration practice only.</em>
             </p>
           </div>
 
@@ -141,8 +141,8 @@ function PrivacidadePage() {
             </ul>
             <p className="mt-3">
               Para exercer qualquer desses direitos, envie um e-mail para{" "}
-              <a href="mailto:contato@statusnaamerica.com" className="text-gold underline underline-offset-4 hover:text-gold/80">
-                contato@statusnaamerica.com
+              <a href="mailto:rogerio@statusimmigrationlaw.com" className="text-gold underline underline-offset-4 hover:text-gold/80">
+                rogerio@statusimmigrationlaw.com
               </a>.
             </p>
           </div>
@@ -171,8 +171,8 @@ function PrivacidadePage() {
             <p className="mt-3">
               Dúvidas sobre esta política ou sobre o tratamento dos seus dados podem ser
               enviadas para{" "}
-              <a href="mailto:contato@statusnaamerica.com" className="text-gold underline underline-offset-4 hover:text-gold/80">
-                contato@statusnaamerica.com
+              <a href="mailto:rogerio@statusimmigrationlaw.com" className="text-gold underline underline-offset-4 hover:text-gold/80">
+                rogerio@statusimmigrationlaw.com
               </a>.
             </p>
           </div>

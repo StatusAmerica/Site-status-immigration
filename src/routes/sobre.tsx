@@ -2,7 +2,7 @@
  * /sobre — página institucional de autoridade e confiança.
  *
  * Dois pilares narrativos:
- *   1) Presença física nos EUA (Orlando) — acompanhamento além do processo.
+ *   1) Presença nos EUA (Washington, DC) — acompanhamento além do processo.
  *   2) História da fundadora Lia — ex-insider que saiu para construir algo melhor.
  *
  * Toda copy/imagem editável via `site_content` (chaves `sobre.*`).
@@ -12,7 +12,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   Building2,
+  Mail,
   MapPin,
+  Phone,
   ShieldCheck,
   BadgeCheck,
   Home as HomeIcon,
@@ -23,6 +25,7 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { FlagUS } from "@/components/site/flags";
 import { PartnersBadges } from "@/components/site/sections";
 import { Button } from "@/components/ui/button";
 import { useContent } from "@/lib/siteContent";
@@ -35,10 +38,10 @@ export const Route = createFileRoute("/sobre")({
       {
         title: "Sobre | Status Immigration Law Firm — advocacia de imigração",
         description:
-          "Conheça a Status Immigration Law Firm, escritório de advocacia especializado em imigração federal, com sede em Orlando e atendimento a brasileiros.",
+          "Conheça a Status Immigration Law Firm, escritório de advocacia especializado em imigração federal, com escritório em Washington, DC e atendimento a brasileiros.",
         ogTitle: "Sobre | Status Immigration Law Firm",
         ogDescription:
-          "Advocacia de imigração federal para brasileiros, com sede em Orlando e atendimento no Brasil e nos Estados Unidos.",
+          "Advocacia de imigração federal para brasileiros, com escritório em Washington, DC e atendimento no Brasil e nos Estados Unidos.",
         canonical: "/sobre",
       },
       loaderData,
@@ -58,28 +61,18 @@ export const Route = createFileRoute("/sobre")({
             taxID: "42-4745152",
             description: "Escritório de advocacia especializado em imigração federal. Licensed in NY and AZ.",
             sameAs: [
-              "https://instagram.com/status_america",
-              "https://facebook.com/statusnaamerica",
+              "https://www.instagram.com/statusimmigrationbr/",
+              "https://www.facebook.com/StatusAdvocaciaBrasil/",
               "https://youtube.com/@status.naamerica",
             ],
-            address: [
-              {
-                "@type": "PostalAddress",
-                streetAddress: "7575 KingsPointe Pkwy #4",
-                addressLocality: "Orlando",
-                addressRegion: "FL",
-                postalCode: "32819",
-                addressCountry: "US",
-              },
-              {
-                "@type": "PostalAddress",
-                streetAddress: "Alameda Araguaia 2104",
-                addressLocality: "Barueri",
-                addressRegion: "SP",
-                postalCode: "06455-000",
-                addressCountry: "BR",
-              },
-            ],
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: "1500 K Street NW, 2nd Floor",
+              addressLocality: "Washington",
+              addressRegion: "DC",
+              postalCode: "20005",
+              addressCountry: "US",
+            },
           }),
         },
       ],
@@ -189,7 +182,7 @@ function NossaHistoria() {
                 Imagem a completar pelo cliente
               </p>
               <p className="mt-1 text-sm text-ink-text/50">
-                Sede em Orlando ou foto da equipe.
+                Escritório em Washington, DC ou foto da equipe.
               </p>
             </div>
           )}
@@ -329,9 +322,9 @@ function NumerosCredenciais() {
 /* ------------------------------ Onde estamos ---------------------------- */
 
 function OndeEstamos() {
-  const usaAddress = "7575 KingsPointe Pkwy #4, Orlando, FL 32819";
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    usaAddress
+  const dcAddress = "1500 K Street NW, 2nd Floor, Washington, DC 20005, United States";
+  const dcMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    dcAddress
   )}`;
   return (
     <section className="section-champagne section-pad border-b border-gold/15">
@@ -341,30 +334,57 @@ function OndeEstamos() {
           <span className="font-mono-label text-oxblood">ONDE ESTAMOS</span>
         </div>
         <h2 className="mt-3 font-display display-2 text-ink-text max-w-2xl">
-          Duas sedes, um mesmo padrão de atendimento.
+          Presença nos Estados Unidos e atendimento em português.
         </h2>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          <div className="compact-info-card block lg:col-span-1">
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="compact-info-card block">
             <span aria-hidden className="block h-[2px] w-10 bg-gold mb-4" />
-            <div className="font-mono-label text-oxblood text-xs">
-              MATRIZ. ESTADOS UNIDOS
+            <div className="font-mono-label text-oxblood text-xs flex items-center gap-2">
+              <FlagUS style={{ width: 16, height: 11 }} />
+              ESCRITÓRIO · WASHINGTON, DC
             </div>
             <div className="mt-1 font-display text-lg text-ink-text">
               Status Immigration Law Firm PLLC
             </div>
             <div className="mt-3 flex items-start gap-2 text-sm text-ink-text/85">
               <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-gold" />
-              <span>{usaAddress}</span>
+              <span>{dcAddress}</span>
             </div>
-            <div className="mt-3 font-mono-label text-[11px] text-ink-text/60">
-              EIN 42-4745152
+            <div className="mt-2.5 flex items-center gap-2 text-sm text-ink-text/85">
+              <Phone className="h-4 w-4 shrink-0 text-gold" />
+              <span>
+                Telefone e WhatsApp:{" "}
+                <a
+                  href="https://wa.me/5531973386310"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gold"
+                >
+                  +55 31 9 7338-6310
+                </a>
+              </span>
+            </div>
+            <div className="mt-1.5 flex items-center gap-2 text-sm text-ink-text/85">
+              <Mail className="h-4 w-4 shrink-0 text-gold" />
+              <span>
+                E-mail:{" "}
+                <a href="mailto:rogerio@statusimmigrationlaw.com" className="hover:text-gold break-all">
+                  rogerio@statusimmigrationlaw.com
+                </a>
+              </span>
+            </div>
+            <div className="mt-3 text-xs text-ink-text/75">
+              Atendimento somente com hora marcada.
+            </div>
+            <div className="mt-1.5 font-mono-label text-[11px] text-ink-text/65">
+              Advogada: Meagan Zabadal · Registro de advogada em Nova York nº 5797303
             </div>
             <div className="mt-1 font-mono-label text-[11px] text-ink-text/60">
-              Meagan Zabadal · NY Bar 5797303 · AZ Bar 040403
+              EIN 42-4745152
             </div>
             <a
-              href={mapsUrl}
+              href={dcMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-2 font-mono-label text-xs text-gold hover:underline"
@@ -373,24 +393,7 @@ function OndeEstamos() {
             </a>
           </div>
 
-          <div className="compact-info-card block lg:col-span-1">
-            <span aria-hidden className="block h-[2px] w-10 bg-gold mb-4" />
-            <div className="font-mono-label text-oxblood text-xs">FILIAL. BRASIL</div>
-            <div className="mt-1 font-display text-lg text-ink-text">
-              Alphaville · CEA Corporate
-            </div>
-            <div className="mt-3 flex items-start gap-2 text-sm text-ink-text/85">
-              <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-gold" />
-              <span>
-                Alameda Araguaia 2104, Barueri/SP · CEP 06455-000
-              </span>
-            </div>
-            <div className="mt-3 font-mono-label text-[11px] text-ink-text/60">
-              CNPJ 62.917.376/0001-21
-            </div>
-          </div>
-
-          <div className="compact-info-card block border-dashed lg:col-span-1">
+          <div className="compact-info-card block border-dashed">
             <span aria-hidden className="block h-[2px] w-10 bg-gold mb-4" />
             <div className="font-mono-label text-oxblood text-xs">EXPANSÃO</div>
             <div className="mt-1 font-display text-lg text-ink-text">

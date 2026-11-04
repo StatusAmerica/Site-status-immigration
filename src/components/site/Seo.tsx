@@ -38,8 +38,10 @@ const ORG_BASE = {
   image: "/og-image.jpg",
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Orlando",
-    addressRegion: "FL",
+    streetAddress: "1500 K Street NW, 2nd Floor",
+    addressLocality: "Washington",
+    addressRegion: "DC",
+    postalCode: "20005",
     addressCountry: "US",
   },
   areaServed: [
@@ -54,7 +56,10 @@ const ORG_BASE = {
     jobTitle: "Immigration Attorney",
     description: "Licensed in New York and Arizona. Federal immigration practice only.",
   },
-  // contactPoint e sameAs são adicionados pelo admin quando os números/URLs forem validados
+  sameAs: [
+    "https://www.instagram.com/statusimmigrationbr/",
+    "https://www.facebook.com/StatusAdvocaciaBrasil/",
+  ],
 };
 
 export function OrganizationJsonLd() {

@@ -31,9 +31,10 @@ export const getPageSeoFn = createServerFn({ method: "GET" })
       const payload = (res.data ?? {}) as PageSeoOverride;
       // Ignora strings vazias — assim o admin pode "resetar" um campo para o default.
       const clean: PageSeoOverride = {};
+      const legacyRe = /(?:\bcnpj\b|62\.917\.376|alameda araguaia|barueri|alphaville|filial no brasil|\borlando\b|kingspointe|\bmatriz\b)/i;
       (Object.keys(payload) as Array<keyof PageSeoOverride>).forEach((k) => {
         const v = payload[k];
-        if (typeof v === "string" && v.trim() !== "") {
+        if (typeof v === "string" && v.trim() !== "" && !legacyRe.test(v)) {
           (clean as Record<string, string>)[k] = v;
         }
       });

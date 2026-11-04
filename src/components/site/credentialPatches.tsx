@@ -4,10 +4,9 @@
  *   - BBB Rating A       -> escudo com "A" e fita
  *   - Avaliações Google  -> "G" nas cores oficiais + estrelas
  *   - EIN (EUA)          -> selo com bandeira dos EUA e "EIN"
- *   - CNPJ (Brasil)      -> selo com bandeira do Brasil e "CNPJ"
  * Sem dependência externa, sem imagens raster.
  */
-import { FlagBR, FlagUS } from "./flags";
+import { FlagUS } from "./flags";
 
 const RING = "absolute inset-0 rounded-full border border-gold/60";
 
@@ -72,18 +71,6 @@ export function PatchEIN() {
       <span className="flex flex-col items-center gap-1">
         <FlagUS className="w-10 rounded-[2px]" style={{ height: 18 }} />
         <span className="font-mono-label text-[10px] text-ink-text/70">USA</span>
-      </span>
-    </Frame>
-  );
-}
-
-/** Bandeira do Brasil em selo — referência ao CNPJ (registro no Brasil). */
-export function PatchCNPJ() {
-  return (
-    <Frame>
-      <span className="flex flex-col items-center gap-1">
-        <FlagBR className="w-10 rounded-[2px]" style={{ height: 18 }} />
-        <span className="font-mono-label text-[10px] text-ink-text/70">BRASIL</span>
       </span>
     </Frame>
   );

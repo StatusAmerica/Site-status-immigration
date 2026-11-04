@@ -101,7 +101,7 @@ export function ObrigadoQualificado() {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <a
-            href="https://www.instagram.com/statusamerica.br/"
+            href="https://www.instagram.com/statusimmigrationbr/"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -200,8 +200,8 @@ export function ObrigadoNaoQualificado() {
           <Mail className="h-4 w-4 text-gold mt-0.5 shrink-0" />
           <span>
             Quer conversar mesmo assim? Escreva para{" "}
-            <a href="mailto:contato@statusnaamerica.com" className="text-gold hover:underline">
-              contato@statusnaamerica.com
+            <a href="mailto:rogerio@statusimmigrationlaw.com" className="text-gold hover:underline">
+              rogerio@statusimmigrationlaw.com
             </a>{" "}
            , vamos te orientar.
           </span>

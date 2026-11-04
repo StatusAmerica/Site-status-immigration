@@ -21,8 +21,9 @@ export interface SiteSettings {
   email: string;
   phone_br: string;
   phone_us: string;
-  endereco_orlando: string;
-  cnpj: string;
+  endereco_orlando?: string;
+  endereco_dc: string;
+  cnpj?: string;
 
   // Redes
   instagram_url: string;
@@ -53,15 +54,16 @@ export const defaultSettings: SiteSettings = {
 
   // Contatos reais (Prompt 5). WhatsApp Brasil configurado para triagem via /avaliacao/whatsapp.
   whatsapp_br: "5531973386303",
-  whatsapp_us: "16892209714",
-  email: "",
-  phone_br: "",
-  phone_us: "+1 689 251-0985",
-  endereco_orlando: "7575 KingsPointe Pkwy #4, Orlando, FL 32819",
-  cnpj: "62.917.376/0001-21",
+  whatsapp_us: "",
+  email: "rogerio@statusimmigrationlaw.com",
+  phone_br: "+55 31 9 7338-6310",
+  phone_us: "",
+  endereco_orlando: "",
+  endereco_dc: "1500 K Street NW, 2nd Floor, Washington, DC 20005, United States",
+  cnpj: "",
 
-  instagram_url: "https://instagram.com/status_america",
-  facebook_url: "https://facebook.com/statusnaamerica",
+  instagram_url: "https://www.instagram.com/statusimmigrationbr/",
+  facebook_url: "https://www.facebook.com/StatusAdvocaciaBrasil/",
   linkedin_url: "",
   youtube_url: "https://youtube.com/@status.naamerica",
 
@@ -84,7 +86,25 @@ const TRACKING_KEY = "tracking";
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const row = await get<SiteSettings>("settings", SETTINGS_KEY);
-  return { ...defaultSettings, ...(row ?? {}) };
+  const merged: SiteSettings = { ...defaultSettings, ...(row ?? {}) };
+  if (!merged.email?.trim() || /statusnaamerica\.com/i.test(merged.email)) {
+    merged.email = defaultSettings.email;
+  }
+  if (!merged.phone_br?.trim()) {
+    merged.phone_br = defaultSettings.phone_br;
+  }
+  if (!merged.endereco_dc?.trim()) {
+    merged.endereco_dc = defaultSettings.endereco_dc;
+  }
+  if (!merged.instagram_url?.trim() || /status_america|statusamerica/i.test(merged.instagram_url)) {
+    merged.instagram_url = defaultSettings.instagram_url;
+  }
+  if (!merged.facebook_url?.trim() || /statusnaamerica/i.test(merged.facebook_url)) {
+    merged.facebook_url = defaultSettings.facebook_url;
+  }
+  merged.endereco_orlando = "";
+  merged.cnpj = "";
+  return merged;
 }
 
 export async function saveSiteSettings(values: Partial<SiteSettings>): Promise<void> {

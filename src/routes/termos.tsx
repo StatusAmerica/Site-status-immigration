@@ -57,9 +57,11 @@ function TermosPage() {
               e acompanhamento de processos imigratórios, com foco em EB-1, EB-2 NIW e O-1.
             </p>
             <p className="mt-3">
-              A análise jurídica é conduzida por advogada licenciada em Nova York e Arizona.
-              A atuação é limitada à prática federal de imigração e não implica licença para
-              prestar serviços jurídicos sobre matérias estaduais da Flórida.
+              A análise jurídica é conduzida pela advogada Meagan Zabadal (Registro de
+              advogada em Nova York nº 5797303), licenciada em Nova York e Arizona. A atuação
+              é limitada exclusivamente à prática federal de imigração (<em>Federal immigration
+              practice only</em>), sem prestação de serviços jurídicos sobre matérias estaduais
+              ou locais fora das jurisdições de licenciamento.
             </p>
             <p className="mt-3">
               O uso do site e o envio de um formulário não criam, por si só, uma relação
@@ -126,9 +128,11 @@ function TermosPage() {
             <h2 className="font-display text-2xl text-foreground">8. Alterações e foro</h2>
             <p className="mt-3">
               Estes Termos podem ser atualizados a qualquer tempo. A versão em vigor é a
-              publicada nesta página. Para o serviço prestado pela filial brasileira, fica
-              eleito o foro da Comarca de Barueri/SP. Para o serviço prestado pela matriz
-              americana, aplica-se a legislação do Estado da Flórida (EUA).
+              publicada nesta página. Os serviços são prestados por{" "}
+              <strong>Status Immigration Law Firm PLLC</strong> nos Estados Unidos,
+              aplicando-se a legislação federal norte-americana e as normas das
+              jurisdições competentes nos EUA, ressalvadas as disposições legais
+              imperativas de proteção ao usuário quando aplicáveis.
             </p>
           </div>
 
@@ -136,8 +140,8 @@ function TermosPage() {
             <h2 className="font-display text-2xl text-foreground">9. Contato</h2>
             <p className="mt-3">
               Dúvidas sobre estes Termos devem ser enviadas para{" "}
-              <a href="mailto:contato@statusnaamerica.com" className="text-gold underline underline-offset-4 hover:text-gold/80">
-                contato@statusnaamerica.com
+              <a href="mailto:rogerio@statusimmigrationlaw.com" className="text-gold underline underline-offset-4 hover:text-gold/80">
+                rogerio@statusimmigrationlaw.com
               </a>.
             </p>
           </div>
