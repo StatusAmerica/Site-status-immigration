@@ -167,7 +167,7 @@ export const defaultContent = {
   "contato.dc.title": "Escritório · Washington, DC",
   "contato.dc.company": "Status Immigration Law Firm PLLC",
   "contato.dc.address": "1500 K Street NW, 2nd Floor, Washington, DC 20005, United States",
-  "contato.dc.phone": "+55 31 9 7338-6310",
+  "contato.dc.phone": "+55 31 9 7338-6303",
   "contato.dc.email": "rogerio@statusimmigrationlaw.com",
   "contato.dc.hours": "Atendimento somente com hora marcada.",
   "contato.dc.attorney": "Advogada: Meagan Zabadal · Registro de advogada em Nova York nº 5797303",

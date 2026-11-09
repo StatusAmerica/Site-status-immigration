@@ -79,11 +79,11 @@ export function Footer() {
               Telefone e WhatsApp:{" "}
               <a
                 className="hover:text-gold"
-                href="https://wa.me/5531973386310"
+                href="https://wa.me/5531973386303"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                +55 31 9 7338-6310
+                +55 31 9 7338-6303
               </a>
             </p>
             <p>

@@ -83,7 +83,7 @@ export const Route = createFileRoute("/contato")({
             contactPoint: [
               {
                 "@type": "ContactPoint",
-                telephone: "+55-31-97338-6310",
+                telephone: "+55-31-97338-6303",
                 email: "rogerio@statusimmigrationlaw.com",
                 contactType: "customer service",
                 areaServed: ["US", "BR"],

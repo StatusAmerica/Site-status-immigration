@@ -79,7 +79,7 @@ const QA: { q: string; a: string }[] = [
   {
     q: "Como entrar em contato?",
     a:
-      "Pelo formulário de triagem inicial em https://statusimmigrationlaw.com.br/avaliacao, telefone/WhatsApp +55 31 9 7338-6310 ou pelo e-mail rogerio@statusimmigrationlaw.com.",
+      "Pelo formulário de triagem inicial em https://statusimmigrationlaw.com.br/avaliacao, telefone/WhatsApp +55 31 9 7338-6303 ou pelo e-mail rogerio@statusimmigrationlaw.com.",
   },
 ];
 

@@ -356,12 +356,12 @@ function OndeEstamos() {
               <span>
                 Telefone e WhatsApp:{" "}
                 <a
-                  href="https://wa.me/5531973386310"
+                  href="https://wa.me/5531973386303"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-gold"
                 >
-                  +55 31 9 7338-6310
+                  +55 31 9 7338-6303
                 </a>
               </span>
             </div>

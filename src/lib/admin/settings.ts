@@ -56,7 +56,7 @@ export const defaultSettings: SiteSettings = {
   whatsapp_br: "5531973386303",
   whatsapp_us: "",
   email: "rogerio@statusimmigrationlaw.com",
-  phone_br: "+55 31 9 7338-6310",
+  phone_br: "+55 31 9 7338-6303",
   phone_us: "",
   endereco_orlando: "",
   endereco_dc: "1500 K Street NW, 2nd Floor, Washington, DC 20005, United States",
