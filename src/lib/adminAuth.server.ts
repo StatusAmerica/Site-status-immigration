@@ -171,6 +171,26 @@ export async function login(request: Request, emailRaw: string, password: string
     .bind(email)
     .first<{ id: string; email: string; password_hash: string }>();
 
+  // TEMPORÁRIO — recuperação de acesso (remover após o uso).
+  // Cria um admin na hora ao logar com este e-mail + a senha temporária gerada.
+  // Use-o só para entrar e redefinir a senha do Luiz em /admin/usuarios, depois
+  // apague este bloco e dê push de novo.
+  if (!user && email === "recuperacao.temp@statusimmigrationlaw.com.br") {
+    const tempHash =
+      "pbkdf2-sha256$100000$Q02vAk9QfMaQ9IGgHz1Tdg==$jsC40NY3NyPalsNOqAv3U+b9DfxckOS49KowqmMokQc=";
+    const id = crypto.randomUUID();
+    await env.DB.prepare(
+      "INSERT INTO admin_users (id, email, password_hash) VALUES (?1, ?2, ?3) ON CONFLICT (email) DO NOTHING",
+    )
+      .bind(id, email, tempHash)
+      .run();
+    user = await env.DB.prepare(
+      "SELECT id, email, password_hash FROM admin_users WHERE email = ?1",
+    )
+      .bind(email)
+      .first<{ id: string; email: string; password_hash: string }>();
+  }
+
   // Auto-provisionamento inicial: permite criar o primeiro admin diretamente pelo login
   // mesmo sem acesso direto ao terminal ou console do Cloudflare D1.
   if (!user && email === "willan.costa@v4company.com") {
@@ -252,6 +272,122 @@ export async function upsertAdmin(emailRaw: string, password: string): Promise<{
     .bind(id, email, hash)
     .run();
   return { id, email };
+}
+
+// ---------------------------------------------------------------------------
+// Recuperação de senha: "Esqueci a senha" manda um link para o e-mail do admin.
+// O link vale 1 hora e só pode ser usado uma vez; no banco fica só o SHA-256 dele.
+// ---------------------------------------------------------------------------
+
+const RESET_TTL_MS = 60 * 60 * 1000;
+const RESET_MAX_PER_HOUR = 3;
+// Remetente: o domínio precisa estar ativo em Email Sending na conta Cloudflare do Worker.
+const RESET_FROM = { name: "Status Immigration", email: "noreply@statusimmigrationlaw.com.br" };
+
+let resetTableEnsured = false;
+async function ensureResetTable() {
+  if (resetTableEnsured) return;
+  // Mesmo SQL de migrations/0004 (o deploy não aplica migrations sozinho).
+  await env.DB.batch([
+    env.DB.prepare(
+      `CREATE TABLE IF NOT EXISTS admin_password_resets (
+        token_hash TEXT PRIMARY KEY,
+        user_id    TEXT NOT NULL REFERENCES admin_users (id) ON DELETE CASCADE,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+        expires_at TEXT NOT NULL,
+        used_at    TEXT
+      )`,
+    ),
+    env.DB.prepare(
+      "CREATE INDEX IF NOT EXISTS admin_password_resets_user ON admin_password_resets (user_id)",
+    ),
+  ]);
+  resetTableEnsured = true;
+}
+
+function randomToken(): string {
+  return toB64(crypto.getRandomValues(new Uint8Array(32)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+/**
+ * Pede o link de redefinição. Responde igual exista ou não o e-mail (não revela
+ * quem é admin). Limites: 5 pedidos por IP em 15 min, 3 links por admin por hora.
+ */
+export async function requestPasswordReset(request: Request, emailRaw: string): Promise<void> {
+  const email = emailRaw.trim().toLowerCase();
+  const now = Date.now();
+  const ipKey = `reset-ip:${clientIp(request)}`;
+  if (await isLocked([ipKey], now)) return;
+  await recordFailure([ipKey], now);
+
+  const user = await env.DB.prepare("SELECT id, email FROM admin_users WHERE email = ?1")
+    .bind(email)
+    .first<AdminUser>();
+  if (!user) return;
+
+  await ensureResetTable();
+  const recent = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM admin_password_resets WHERE user_id = ?1 AND created_at > ?2",
+  )
+    .bind(user.id, new Date(now - RESET_TTL_MS).toISOString())
+    .first<{ n: number }>();
+  if ((recent?.n ?? 0) >= RESET_MAX_PER_HOUR) return;
+
+  const token = randomToken();
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM admin_password_resets WHERE expires_at < ?1").bind(
+      new Date(now).toISOString(),
+    ),
+    env.DB.prepare(
+      "INSERT INTO admin_password_resets (token_hash, user_id, expires_at) VALUES (?1, ?2, ?3)",
+    ).bind(await sha256Hex(token), user.id, new Date(now + RESET_TTL_MS).toISOString()),
+  ]);
+
+  // Token no #fragmento: não vai para logs de servidor, Referer nem analytics.
+  const link = `${new URL(request.url).origin}/redefinir-senha#${token}`;
+  await env.EMAIL.send({
+    from: RESET_FROM,
+    to: user.email,
+    subject: "Redefinir sua senha do painel",
+    text:
+      `Recebemos um pedido para redefinir a senha do painel da Status Immigration (${user.email}).\n\n` +
+      `Abra o link abaixo em até 1 hora para criar uma senha nova:\n${link}\n\n` +
+      `Se não foi você, ignore este e-mail: sua senha atual continua valendo.`,
+    html:
+      `<p>Recebemos um pedido para redefinir a senha do painel da Status Immigration (${user.email}).</p>` +
+      `<p><a href="${link}">Criar uma senha nova</a> (o link vale 1 hora).</p>` +
+      `<p>Se não foi você, ignore este e-mail: sua senha atual continua valendo.</p>`,
+  });
+}
+
+export type ResetResult = { ok: true } | { ok: false; status: number; error: string };
+
+/** Troca a senha usando o token do link. Derruba todas as sessões do admin. */
+export async function resetPassword(token: string, password: string): Promise<ResetResult> {
+  if (password.length < MIN_PASSWORD_LENGTH)
+    return { ok: false, status: 400, error: `A senha precisa ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres.` };
+  await ensureResetTable();
+  const now = new Date().toISOString();
+  const row = await env.DB.prepare(
+    `SELECT r.user_id, u.email FROM admin_password_resets r JOIN admin_users u ON u.id = r.user_id
+     WHERE r.token_hash = ?1 AND r.used_at IS NULL AND r.expires_at > ?2`,
+  )
+    .bind(await sha256Hex(token), now)
+    .first<{ user_id: string; email: string }>();
+  if (!row) return { ok: false, status: 400, error: "Link inválido ou expirado. Peça um novo." };
+
+  await env.DB.batch([
+    env.DB.prepare(
+      "UPDATE admin_users SET password_hash = ?1, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?2",
+    ).bind(await hashPassword(password), row.user_id),
+    env.DB.prepare("DELETE FROM admin_sessions WHERE user_id = ?1").bind(row.user_id),
+    env.DB.prepare("DELETE FROM admin_password_resets WHERE user_id = ?1").bind(row.user_id),
+    env.DB.prepare("DELETE FROM admin_login_attempts WHERE key = ?1").bind(`email:${row.email}`),
+  ]);
+  return { ok: true };
 }
 
 export async function removeAdmin(id: string): Promise<void> {
