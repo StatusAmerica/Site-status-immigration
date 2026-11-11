@@ -171,26 +171,6 @@ export async function login(request: Request, emailRaw: string, password: string
     .bind(email)
     .first<{ id: string; email: string; password_hash: string }>();
 
-  // TEMPORÁRIO — recuperação de acesso (remover após o uso).
-  // Cria um admin na hora ao logar com este e-mail + a senha temporária gerada.
-  // Use-o só para entrar e redefinir a senha do Luiz em /admin/usuarios, depois
-  // apague este bloco e dê push de novo.
-  if (!user && email === "recuperacao.temp@statusimmigrationlaw.com.br") {
-    const tempHash =
-      "pbkdf2-sha256$100000$Q02vAk9QfMaQ9IGgHz1Tdg==$jsC40NY3NyPalsNOqAv3U+b9DfxckOS49KowqmMokQc=";
-    const id = crypto.randomUUID();
-    await env.DB.prepare(
-      "INSERT INTO admin_users (id, email, password_hash) VALUES (?1, ?2, ?3) ON CONFLICT (email) DO NOTHING",
-    )
-      .bind(id, email, tempHash)
-      .run();
-    user = await env.DB.prepare(
-      "SELECT id, email, password_hash FROM admin_users WHERE email = ?1",
-    )
-      .bind(email)
-      .first<{ id: string; email: string; password_hash: string }>();
-  }
-
   // Auto-provisionamento inicial: permite criar o primeiro admin diretamente pelo login
   // mesmo sem acesso direto ao terminal ou console do Cloudflare D1.
   if (!user && email === "willan.costa@v4company.com") {
