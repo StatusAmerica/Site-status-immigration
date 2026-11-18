@@ -92,6 +92,29 @@ export async function sendLeadToCRM({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    // LOG TEMPORÁRIO (diagnóstico leads Meta) — remover depois de resolver.
+    // Sem PII: nome/e-mail/telefone não entram no log, só flags e origem.
+    let respBody = "";
+    try {
+      respBody = (await res.clone().text()).slice(0, 500);
+    } catch {
+      /* ignore */
+    }
+    console.log(
+      "[crm][diag]",
+      JSON.stringify({
+        id: payload.id,
+        status: res.status,
+        ok: res.ok,
+        utm_source: payload.utm_source || "(vazio)",
+        utm_medium: payload.utm_medium || "(vazio)",
+        utm_campaign: payload.utm_campaign || "(vazio)",
+        has_fbclid: Boolean(payload.fbclid),
+        has_gclid: Boolean(payload.gclid),
+        has_whatsapp: Boolean(payload.whatsapp_e164),
+        resp: respBody,
+      }),
+    );
     if (!res.ok) console.error("[crm] webhook respondeu", res.status);
   } catch (err) {
     // nunca derruba o envio do formulário por causa do CRM
