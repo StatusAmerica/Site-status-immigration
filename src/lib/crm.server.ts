@@ -2,6 +2,7 @@
 // o lead é gravado no D1. O payload mantém as MESMAS chaves que o site antigo mandava,
 // para o mapeamento que já existe no webhook continuar funcionando.
 
+import { env } from "cloudflare:workers";
 import { normalizeBrPhone } from "./phone";
 
 const CRM_WEBHOOK_URL =
@@ -115,9 +116,50 @@ export async function sendLeadToCRM({
         resp: respBody,
       }),
     );
+    // Persiste o diag no D1 para inspeção pelo /admin (sem acesso aos logs do Worker).
+    try {
+      await env.DB.prepare(
+        `CREATE TABLE IF NOT EXISTS crm_webhook_log (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+          lead_id TEXT, status INTEGER, ok INTEGER,
+          utm_source TEXT, has_fbclid INTEGER, has_gclid INTEGER, has_whatsapp INTEGER,
+          resp TEXT
+        )`,
+      ).run();
+      await env.DB.prepare(
+        `INSERT INTO crm_webhook_log
+          (lead_id, status, ok, utm_source, has_fbclid, has_gclid, has_whatsapp, resp)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`,
+      )
+        .bind(
+          payload.id,
+          res.status,
+          res.ok ? 1 : 0,
+          payload.utm_source || "",
+          payload.fbclid ? 1 : 0,
+          payload.gclid ? 1 : 0,
+          payload.whatsapp_e164 ? 1 : 0,
+          respBody,
+        )
+        .run();
+    } catch (e) {
+      console.error("[crm][diag] log no D1 falhou", e);
+    }
     if (!res.ok) console.error("[crm] webhook respondeu", res.status);
   } catch (err) {
     // nunca derruba o envio do formulário por causa do CRM
     console.error("[crm] falha ao enviar lead", err);
   }
+}
+
+/** TEMPORÁRIO — lê os últimos registros do diag do CRM (usado por /api/admin/crm-diag). */
+export async function readCrmDiag(limit = 50) {
+  const r = await env.DB.prepare(
+    `SELECT created_at, lead_id, status, ok, utm_source, has_fbclid, has_gclid, has_whatsapp, resp
+     FROM crm_webhook_log ORDER BY id DESC LIMIT ?1`,
+  )
+    .bind(limit)
+    .all();
+  return r.results ?? [];
 }

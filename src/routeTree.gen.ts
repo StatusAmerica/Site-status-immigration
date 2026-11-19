@@ -50,6 +50,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as LpSlugRouteImport } from './routes/lp.$slug'
 import { Route as MediaSplatRouteImport } from './routes/media/$'
 import { Route as VistosSlugRouteImport } from './routes/vistos.$slug'
+import { Route as ApiAdminCrmDiagRouteImport } from './routes/api/admin/crm-diag'
 import { Route as ApiAdminLoginRouteImport } from './routes/api/admin/login'
 import { Route as ApiAdminLogoutRouteImport } from './routes/api/admin/logout'
 import { Route as ApiAdminMeRouteImport } from './routes/api/admin/me'
@@ -267,6 +268,11 @@ const VistosSlugRoute = VistosSlugRouteImport.update({
   path: '/vistos/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminCrmDiagRoute = ApiAdminCrmDiagRouteImport.update({
+  id: '/api/admin/crm-diag',
+  path: '/api/admin/crm-diag',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminLoginRoute = ApiAdminLoginRouteImport.update({
   id: '/api/admin/login',
   path: '/api/admin/login',
@@ -355,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/vistos/$slug': typeof VistosSlugRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/avaliacao/': typeof AvaliacaoIndexRoute
+  '/api/admin/crm-diag': typeof ApiAdminCrmDiagRoute
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/media/$': typeof MediaSplatRoute
   '/admin': typeof AdminIndexRoute
   '/avaliacao': typeof AvaliacaoIndexRoute
+  '/api/admin/crm-diag': typeof ApiAdminCrmDiagRoute
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
@@ -458,6 +466,7 @@ export interface FileRoutesById {
   '/vistos/$slug': typeof VistosSlugRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/avaliacao/': typeof AvaliacaoIndexRoute
+  '/api/admin/crm-diag': typeof ApiAdminCrmDiagRoute
   '/api/admin/login': typeof ApiAdminLoginRoute
   '/api/admin/logout': typeof ApiAdminLogoutRoute
   '/api/admin/me': typeof ApiAdminMeRoute
@@ -512,6 +521,7 @@ export interface FileRouteTypes {
     | '/vistos/$slug'
     | '/admin/'
     | '/avaliacao/'
+    | '/api/admin/crm-diag'
     | '/api/admin/login'
     | '/api/admin/logout'
     | '/api/admin/me'
@@ -562,6 +572,7 @@ export interface FileRouteTypes {
     | '/media/$'
     | '/admin'
     | '/avaliacao'
+    | '/api/admin/crm-diag'
     | '/api/admin/login'
     | '/api/admin/logout'
     | '/api/admin/me'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/vistos/$slug'
     | '/admin/'
     | '/avaliacao/'
+    | '/api/admin/crm-diag'
     | '/api/admin/login'
     | '/api/admin/logout'
     | '/api/admin/me'
@@ -646,6 +658,7 @@ export interface RootRouteChildren {
   MediaSplatRoute: typeof MediaSplatRoute
   VistosSlugRoute: typeof VistosSlugRouteWithChildren
   AvaliacaoIndexRoute: typeof AvaliacaoIndexRoute
+  ApiAdminCrmDiagRoute: typeof ApiAdminCrmDiagRoute
   ApiAdminLoginRoute: typeof ApiAdminLoginRoute
   ApiAdminLogoutRoute: typeof ApiAdminLogoutRoute
   ApiAdminMeRoute: typeof ApiAdminMeRoute
@@ -943,6 +956,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VistosSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/crm-diag': {
+      id: '/api/admin/crm-diag'
+      path: '/api/admin/crm-diag'
+      fullPath: '/api/admin/crm-diag'
+      preLoaderRoute: typeof ApiAdminCrmDiagRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/login': {
       id: '/api/admin/login'
       path: '/api/admin/login'
@@ -1114,6 +1134,7 @@ const rootRouteChildren: RootRouteChildren = {
   MediaSplatRoute: MediaSplatRoute,
   VistosSlugRoute: VistosSlugRouteWithChildren,
   AvaliacaoIndexRoute: AvaliacaoIndexRoute,
+  ApiAdminCrmDiagRoute: ApiAdminCrmDiagRoute,
   ApiAdminLoginRoute: ApiAdminLoginRoute,
   ApiAdminLogoutRoute: ApiAdminLogoutRoute,
   ApiAdminMeRoute: ApiAdminMeRoute,
